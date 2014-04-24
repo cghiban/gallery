@@ -12,8 +12,8 @@
 
     {% for action in action_list %}
 
-        {% ifchanged action.timestamp|date:'F j, Y' %}
-            <h2>{{ action.timestamp|date:'F j, Y' }}</h2>
+        {% ifchanged action.timestamp|date %}
+            <h2>{{ action.timestamp|date }}</h2>
         {% endifchanged %}
 
         <p>
