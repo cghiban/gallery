@@ -29,8 +29,10 @@ def get_back_link(request, photo, **kwargs):
             'title': person.name
         }
     if 'location_pk' in kwargs:
-        new_kwargs = {'pk': photo.album.pk,
-                      'location_pk': kwargs['location_pk']}
+        new_kwargs = {
+            'pk': photo.album.pk,
+            'location_pk': kwargs['location_pk']
+        }
         return {
             'url': reverse('album', kwargs=new_kwargs),
             'title': photo.album.name
