@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from photos import views
 from photos.views import album, photo, person, location
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^upload/$', views.upload, name='upload'),
     url(r'^search/$', views.search, name='search'),
     url(r'^search/(?P<query>[\w=&]+)/$', views.results, name='results'),
@@ -60,4 +59,4 @@ urlpatterns = patterns(
         name='photo'),
     url(r'^search/(?P<query>[\w=&]+)/photos/(?P<pk>\d+)/$', photo.detail,
         name='photo'),
-)
+]
