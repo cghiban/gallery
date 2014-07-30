@@ -1,18 +1,17 @@
-import datetime
+from datetime import datetime
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.utils.dates import MONTHS
 
 from utils.filestorage.uploads import get_unique_upload_path
 from utils.filestorage.signals import delete_files_on_delete, \
     delete_files_on_change
 from photos.utils import generate_thumbnail
 
-MONTH_CHOICES = ((mon, datetime.date(2000, mon, 1).strftime('%B')) for mon in
-                 range(1, 13))
+MONTH_CHOICES = [(key, value) for key, value in MONTHS.items()]
 
-YEAR_CHOICES = ((year, year) for year in
-                range(1950, (datetime.datetime.now().year + 1)))
+YEAR_CHOICES = [(year, year) for year in range(1950, (datetime.now().year + 1))]
 
 
 class Location(models.Model):
