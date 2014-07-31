@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-31 08:42-0400\n"
+"POT-Creation-Date: 2014-07-31 08:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -158,6 +158,8 @@ msgid "Your password has been successfully changed."
 msgstr ""
 
 #: gallery/templates/_paginator.html:7 gallery/templates/_paginator.html:9
+#: photos/templates/photos/photo_detail.html:11
+#: photos/templates/photos/photo_detail.html:13
 msgid "Prev"
 msgstr ""
 
@@ -167,6 +169,8 @@ msgid "of"
 msgstr ""
 
 #: gallery/templates/_paginator.html:19 gallery/templates/_paginator.html:21
+#: photos/templates/photos/photo_detail.html:21
+#: photos/templates/photos/photo_detail.html:23
 msgid "Next"
 msgstr ""
 

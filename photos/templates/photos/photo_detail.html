@@ -8,9 +8,9 @@
 {% block pagination %}
 
     {% if paginator.has_previous %}
-        <a href="{{ paginator.previous_url }}" class="previous" data-navigate="left">&lt&lt;&nbsp;Prev</a>
+        <a href="{{ paginator.previous_url }}" class="previous" data-navigate="left">&lt&lt;&nbsp;{% trans "Prev" %}</a>
     {% else %}
-        <span class="previous">&lt&lt;&nbsp;Prev</span>
+        <span class="previous">&lt&lt;&nbsp;{% trans "Prev" %}</span>
     {% endif %}
 
     <span class="count">
@@ -18,9 +18,9 @@
     </span>
 
     {% if paginator.has_next %}
-        <a href="{{ paginator.next_url }}" class="next" data-navigate="right">Next&nbsp;&gt;&gt;</a>
+        <a href="{{ paginator.next_url }}" class="next" data-navigate="right">{% trans "Next" %}&nbsp;&gt;&gt;</a>
     {% else %}
-        <span class="next">Next&nbsp;&gt;&gt;</span>
+        <span class="next">{% trans "Next" %}&nbsp;&gt;&gt;</span>
     {% endif %}
 
 {% endblock %}
