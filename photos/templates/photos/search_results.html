@@ -10,7 +10,7 @@
         {% for photo in photo_list %}
             <div class="thumb">
                 <a href="{% url 'photo' pk=photo.pk query=query %}">
-                    <img src="{{ photo.file_200x200.url }}" alt="{{ photo.name }}">
+                    <img src="{{ photo.file_thumb.url }}" alt="{{ photo.name }}">
                 </a>
             </div>
         {% endfor %}

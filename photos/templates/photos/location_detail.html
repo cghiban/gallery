@@ -23,7 +23,7 @@
             <div class="thumb">
                 <a href="{% url 'album' pk=album.pk location_pk=location.pk %}">
                     {% if album.cover_photo %}
-                        <img src="{{ album.cover_photo.file_200x200.url|default:"" }}" alt="{{ album.name }}">
+                        <img src="{{ album.cover_photo.file_thumb.url|default:"" }}" alt="{{ album.name }}">
                     {% else %}
                         <img src="{{ STATIC_URL }}/img/cover-blank.png">
                     {% endif %}

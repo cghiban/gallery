@@ -28,7 +28,7 @@
                     {% url 'photo' pk=photo.pk as photo_url %}
                 {% endif %}
                 <a href="{{ photo_url }}">
-                    <img src="{{ photo.file_200x200.url }}" alt="{{ photo.name }}">
+                    <img src="{{ photo.file_thumb.url }}" alt="{{ photo.name }}">
                 </a>
             </div>
         {% endfor %}

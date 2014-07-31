@@ -163,18 +163,18 @@ class Photo(models.Model):
         return getattr(self, prop_name)
 
     @property
-    def file_200x200(self):
+    def file_thumb(self):
         """
         Shortcut to generate a '200x200-fit' thumbnail. Useful in templates.
         """
         return self.thumbnail('200x200-fit')
 
     @property
-    def file_800x600(self):
+    def file_medium(self):
         """
-        Shortcut to generate a '800x600-thumb' thumbnail. Useful in templates.
+        Shortcut to generate a '1024x768-thumb' thumbnail. Useful in templates.
         """
-        return self.thumbnail('800x600-thumb')
+        return self.thumbnail('1024x768-thumb')
 
 
 class Thumbnail(models.Model):
