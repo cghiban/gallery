@@ -76,18 +76,6 @@ class RegisterForm(UserCreationForm):
     def clean_auth_code(self):
         """
         Validates that the auth code is one of the two valid authorization
-        codes so the user can create his account.
-        """
-        auth_code = self.cleaned_data['auth_code']
-        if auth_code not in (settings.AUTH_CODE_USER,
-                             settings.AUTH_CODE_ADMIN):
-            raise forms.ValidationError(
-                self.error_messages['invalid_auth_code'])
-        return auth_code
-
-    def clean_auth_code(self):
-        """
-        Validates that the auth code is one of the two valid authorization
         codes so the user can create his account. Sets self.is_admin_user so
         that the save method will know whether to create an admin account or
         a regular account.

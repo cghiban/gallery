@@ -7,7 +7,8 @@ from django.utils.encoding import force_text
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 
-from accounts.forms import PasswordResetForm, RegisterForm, AuthenticationForm
+from accounts.forms import PasswordResetForm, RegisterForm, AuthenticationForm, \
+    ProfileForm
 
 
 class TestCaseWithUser(TestCase):
@@ -19,8 +20,6 @@ class TestCaseWithUser(TestCase):
             email='jacob@example.com',
             password=self.password)
 
-
-class AuthenticatedTestCase(TestCaseWithUser):
     def login(self):
         form_data = {'username': self.user.username, 'password': self.password}
         response = self.client.post(reverse('accounts:login'), form_data)
@@ -28,7 +27,7 @@ class AuthenticatedTestCase(TestCaseWithUser):
         return response
 
 
-class ProfileView(AuthenticatedTestCase):
+class ProfileView(TestCaseWithUser):
     def test_get(self):
         """
         Test that the profile contains the profile form.
@@ -46,8 +45,7 @@ class ProfileView(AuthenticatedTestCase):
         form_data = {'first_name': 'Jacob', 'last_name': 'User',
                      'email': 'newemail@example.com'}
         response = self.client.post(reverse('accounts:profile'), form_data)
-        self.assertRedirects(response, reverse('accounts:profile'),
-                             status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('accounts:profile'))
         user = User.objects.get(username=self.user.username)
         self.assertEqual(user.first_name, 'Jacob')
         self.assertEqual(user.last_name, 'User')
@@ -60,21 +58,36 @@ class ProfileView(AuthenticatedTestCase):
         self.login()
         form_data = {'username': 'hacked', 'email': 'jacob@example.com'}
         response = self.client.post(reverse('accounts:profile'), form_data)
-        self.assertRedirects(response, reverse('accounts:profile'),
-                             status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('accounts:profile'))
         with self.assertRaises(User.DoesNotExist):
             user = User.objects.get(username='hacked')
 
+    def test_duplicate_email(self):
+        """
+        Test that email address cannot be a duplicate of another user.
+        """
+        self.login()
 
-class LogoutView(AuthenticatedTestCase):
+        self.user = User.objects.create_user(
+            username='jacob2',
+            email='jacob2@example.com',
+            password='welcome2')
+        form_data = {'first_name': 'Jacob', 'last_name': 'User',
+                     'email': 'jacob2@example.com'}
+        response = self.client.post(reverse('accounts:profile'), form_data)
+        self.assertFormError(
+            response, 'form', 'email',
+            ProfileForm.error_messages['duplicate_email'])
+
+
+class LogoutView(TestCaseWithUser):
     def test_get(self):
         """
         Test that the logout page works and redirects to login page.
         """
         self.login()
         response = self.client.get(reverse('accounts:logout'))
-        self.assertRedirects(response, reverse('accounts:login'),
-                             status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('accounts:login'))
         self.assertTrue(SESSION_KEY not in self.client.session)
 
 
@@ -94,8 +107,7 @@ class LoginView(TestCaseWithUser):
         form_data = {'username': self.user.username, 'password': self.password}
         response = self.client.post(reverse('accounts:login'), form_data)
         self.assertTrue(SESSION_KEY in self.client.session)
-        self.assertRedirects(response, reverse('home'),
-                             status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('home'))
 
     def test_invalid(self):
         """
@@ -152,8 +164,7 @@ class RegisterView(TestCaseWithUser):
                      'password1': 'welcome', 'password2': 'welcome',
                      'auth_code': settings.AUTH_CODE_USER}
         response = self.client.post(reverse('accounts:register'), form_data)
-        self.assertRedirects(response, reverse('accounts:login'),
-                             status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('accounts:login'))
         uniq = User.objects.get_by_natural_key('uniq').groups.all()
         self.assertEqual(uniq.count(), 0)
 
@@ -165,8 +176,7 @@ class RegisterView(TestCaseWithUser):
                      'password1': 'welcome', 'password2': 'welcome',
                      'auth_code': settings.AUTH_CODE_ADMIN}
         response = self.client.post(reverse('accounts:register'), form_data)
-        self.assertRedirects(response, reverse('accounts:login'),
-                             status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('accounts:login'))
         uniq = User.objects.get_by_natural_key('uniq').groups.all()
         self.assertEqual(uniq.count(), 1)
         self.assertEqual(uniq[0], Group.objects.get(
@@ -211,8 +221,7 @@ class PasswordResetView(TestCaseWithUser):
         form_data = {'email': self.user.email}
         response = self.client.post(
             reverse('accounts:password_reset'), form_data)
-        self.assertRedirects(response, reverse('accounts:login'),
-                             status_code=302, target_status_code=200)
+        self.assertRedirects(response, reverse('accounts:login'))
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue('http://' in mail.outbox[0].body)
         self.assertEqual(
