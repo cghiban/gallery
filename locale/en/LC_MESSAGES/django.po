@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-10 09:35-0400\n"
+"POT-Creation-Date: 2014-07-31 08:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,8 +109,8 @@ msgstr ""
 #: accounts/templates/accounts/profile.html:15 photos/views/album.py:69
 #: photos/views/album.py:84 photos/views/location.py:49
 #: photos/views/location.py:64 photos/views/person.py:68
-#: photos/views/person.py:83 photos/views/photo.py:126
-#: photos/views/photo.py:141 photos/views/photo.py:156
+#: photos/views/person.py:83 photos/views/photo.py:128
+#: photos/views/photo.py:143 photos/views/photo.py:158
 msgid "Save"
 msgstr ""
 
@@ -221,64 +221,64 @@ msgstr ""
 msgid "The following files are not allowed: %s"
 msgstr ""
 
-#: photos/models.py:22 photos/models.py:49 photos/models.py:78
-#: photos/models.py:128
+#: photos/models.py:20 photos/models.py:47 photos/models.py:76
+#: photos/models.py:126
 msgid "name"
 msgstr ""
 
-#: photos/models.py:26 photos/models.py:86
+#: photos/models.py:24 photos/models.py:84
 msgid "location"
 msgstr ""
 
-#: photos/models.py:27
+#: photos/models.py:25
 msgid "locations"
 msgstr ""
 
-#: photos/models.py:53
+#: photos/models.py:51
 msgid "person"
 msgstr ""
 
-#: photos/models.py:54 photos/models.py:133
+#: photos/models.py:52 photos/models.py:131
 msgid "people"
 msgstr ""
 
-#: photos/models.py:80
+#: photos/models.py:78
 msgid "month"
 msgstr ""
 
-#: photos/models.py:82
+#: photos/models.py:80
 msgid "year"
 msgstr ""
 
-#: photos/models.py:90 photos/models.py:131
+#: photos/models.py:88 photos/models.py:129
 msgid "album"
 msgstr ""
 
-#: photos/models.py:91
+#: photos/models.py:89
 msgid "albums"
 msgstr ""
 
-#: photos/models.py:129 photos/models.py:189
+#: photos/models.py:127 photos/models.py:187
 msgid "file"
 msgstr ""
 
-#: photos/models.py:144 photos/models.py:190
+#: photos/models.py:142 photos/models.py:188
 msgid "photo"
 msgstr ""
 
-#: photos/models.py:145
+#: photos/models.py:143
 msgid "photos"
 msgstr ""
 
-#: photos/models.py:188
+#: photos/models.py:186
 msgid "size"
 msgstr ""
 
-#: photos/models.py:195
+#: photos/models.py:193
 msgid "thumbnail"
 msgstr ""
 
-#: photos/models.py:196
+#: photos/models.py:194
 msgid "thumbnails"
 msgstr ""
 
@@ -299,7 +299,7 @@ msgstr ""
 #: photos/templates/photos/person_detail.html:14
 #: photos/templates/photos/photo_detail.html:37 photos/views/album.py:98
 #: photos/views/location.py:78 photos/views/person.py:46
-#: photos/views/photo.py:171
+#: photos/views/photo.py:173
 msgid "Delete"
 msgstr ""
 
@@ -367,7 +367,7 @@ msgid "Tag"
 msgstr ""
 
 #: photos/templates/photos/search_results.html:5
-#: photos/templates/photos/search_results.html:6 photos/views/photo.py:41
+#: photos/templates/photos/search_results.html:6 photos/views/photo.py:43
 msgid "Results"
 msgstr ""
 
@@ -423,47 +423,47 @@ msgstr ""
 msgid "Rename Person"
 msgstr ""
 
-#: photos/views/photo.py:125
+#: photos/views/photo.py:127
 msgid "Move Photo"
 msgstr ""
 
-#: photos/views/photo.py:140
+#: photos/views/photo.py:142
 msgid "Rename Photo"
 msgstr ""
 
-#: photos/views/photo.py:155
+#: photos/views/photo.py:157
 msgid "Tag Photo"
 msgstr ""
 
-#: photos/views/photo.py:170
+#: photos/views/photo.py:172
 msgid "Delete Photo"
 msgstr ""
 
-#: photos/views/photo.py:173
+#: photos/views/photo.py:175
 msgid "Are you sure you want to delete this photo?"
 msgstr ""
 
-#: stream/models.py:28
+#: stream/models.py:29
 msgid "timestamp"
 msgstr ""
 
-#: stream/models.py:29
+#: stream/models.py:30
 msgid "verb"
 msgstr ""
 
-#: stream/models.py:30
+#: stream/models.py:31
 msgid "join"
 msgstr ""
 
-#: stream/models.py:32
+#: stream/models.py:33
 msgid "user"
 msgstr ""
 
-#: stream/models.py:48
+#: stream/models.py:49
 msgid "action"
 msgstr ""
 
-#: stream/models.py:49
+#: stream/models.py:50
 msgid "actions"
 msgstr ""
 
