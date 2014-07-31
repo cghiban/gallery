@@ -17,6 +17,8 @@ public/static/
 
 # local settings
 gallery/settings_local.py
+.coveralls.yml
+.coverage
 
 # cache
 tmp/cache

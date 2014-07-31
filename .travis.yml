@@ -2,11 +2,15 @@ language: python
 python:
   - "3.3"
   - "3.4"
-install: 
+install:
   - "pip install coverage==3.7.1"
   - "pip install python-coveralls==2.4.2"
   - "pip install https://www.djangoproject.com/download/1.7c2/tarball/"
   - "pip install -r requirements.txt"
-before_script: coverage erase
-script: coverage run manage.py test
-after_success: coverage report; coveralls
+before_script:
+  - "coverage erase"
+script:
+  - "coverage run manage.py test"
+after_success:
+  - "coverage report"
+  - "coveralls"
