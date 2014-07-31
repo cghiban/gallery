@@ -68,9 +68,12 @@ be added to the group specified in AUTH_CODE_ADMIN_GROUP setting. If this group
 does not exist, it will be created and all permissions from the photos app will
 be added to the group.
 
+## Testing
+
+[![Build Status](https://travis-ci.org/timster/gallery.svg?branch=master)](https://travis-ci.org/timster/gallery)
+
 ## To-Do List
 
 - Add a Years navigation option just like Locations and People.
 - Handle uploading of zip files (extract and pull out images).
 - Pull exif data out of photos when uploaded.
-- Tests are always a good thing.
