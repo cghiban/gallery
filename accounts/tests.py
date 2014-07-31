@@ -1,14 +1,17 @@
+from django.contrib.auth.tokens import default_token_generator
+
 from django.test import TestCase, Client
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django.forms.fields import Field
-from django.utils.encoding import force_text
+from django.utils.encoding import force_text, force_bytes
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY
+from django.utils.http import urlsafe_base64_encode
 
-from accounts.forms import PasswordResetForm, RegisterForm, AuthenticationForm, \
-    ProfileForm
+from accounts.forms import PasswordResetForm, RegisterForm, \
+    AuthenticationForm, ProfileForm, PasswordChangeForm, SetPasswordForm
 
 
 class TestCaseWithUser(TestCase):
@@ -26,6 +29,11 @@ class TestCaseWithUser(TestCase):
         self.assertTrue(SESSION_KEY in self.client.session)
         return response
 
+    def form_in_response(self, url):
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('form' in response.context)
+
 
 class ProfileView(TestCaseWithUser):
     def test_get(self):
@@ -33,9 +41,7 @@ class ProfileView(TestCaseWithUser):
         Test that the profile contains the profile form.
         """
         self.login()
-        response = self.client.get(reverse('accounts:profile'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('form' in response.context)
+        self.form_in_response(reverse('accounts:profile'))
 
     def test_update(self):
         """
@@ -67,7 +73,6 @@ class ProfileView(TestCaseWithUser):
         Test that email address cannot be a duplicate of another user.
         """
         self.login()
-
         self.user = User.objects.create_user(
             username='jacob2',
             email='jacob2@example.com',
@@ -96,9 +101,7 @@ class LoginView(TestCaseWithUser):
         """
         Test that the login page contains the login form.
         """
-        response = self.client.get(reverse('accounts:login'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('form' in response.context)
+        self.form_in_response(reverse('accounts:login'))
 
     def test_valid(self):
         """
@@ -128,9 +131,7 @@ class RegisterView(TestCaseWithUser):
         """
         Test that the register page contains the register form.
         """
-        response = self.client.get(reverse('accounts:register'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('form' in response.context)
+        self.form_in_response(reverse('accounts:register'))
 
     def test_invalid(self):
         """
@@ -151,10 +152,12 @@ class RegisterView(TestCaseWithUser):
         """
         form_data = {'username': self.user.username, 'email': self.user.email}
         response = self.client.post(reverse('accounts:register'), form_data)
-        self.assertFormError(response, 'form', 'username',
-                             RegisterForm.error_messages['duplicate_username'])
-        self.assertFormError(response, 'form', 'email',
-                             RegisterForm.error_messages['duplicate_email'])
+        self.assertFormError(
+            response, 'form', 'username',
+            RegisterForm.error_messages['duplicate_username'])
+        self.assertFormError(
+            response, 'form', 'email',
+            RegisterForm.error_messages['duplicate_email'])
 
     def test_valid_auth_code_user(self):
         """
@@ -190,8 +193,9 @@ class RegisterView(TestCaseWithUser):
                      'password1': 'welcome', 'password2': 'welcome',
                      'auth_code': 'fake'}
         response = self.client.post(reverse('accounts:register'), form_data)
-        self.assertFormError(response, 'form', 'auth_code',
-                             RegisterForm.error_messages['invalid_auth_code'])
+        self.assertFormError(
+            response, 'form', 'auth_code',
+            RegisterForm.error_messages['invalid_auth_code'])
 
 
 class PasswordResetView(TestCaseWithUser):
@@ -199,9 +203,7 @@ class PasswordResetView(TestCaseWithUser):
         """
         Test that the password reset page contains the form.
         """
-        response = self.client.get(reverse('accounts:password_reset'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('form' in response.context)
+        self.form_in_response(reverse('accounts:password_reset'))
 
     def test_invalid(self):
         """
@@ -210,8 +212,9 @@ class PasswordResetView(TestCaseWithUser):
         form_data = {'email': 'invalid@invalid.com'}
         response = self.client.post(
             reverse('accounts:password_reset'), form_data)
-        self.assertFormError(response, 'form', 'email',
-                             PasswordResetForm.error_messages['invalid_email'])
+        self.assertFormError(
+            response, 'form', 'email',
+            PasswordResetForm.error_messages['invalid_email'])
         self.assertEqual(len(mail.outbox), 0)
 
     def test_valid(self):
@@ -226,3 +229,93 @@ class PasswordResetView(TestCaseWithUser):
         self.assertTrue('http://' in mail.outbox[0].body)
         self.assertEqual(
             settings.DEFAULT_FROM_EMAIL, mail.outbox[0].from_email)
+
+
+class PasswordResetConfirmView(TestCaseWithUser):
+    def test_invalid(self):
+        """
+        Test that non matching passwords will be caught.
+        """
+        token = default_token_generator.make_token(self.user)
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        url = reverse(
+            'accounts:password_reset_confirm',
+            kwargs=dict(uidb64=uid, token=token))
+        self.form_in_response(url)
+        form_data = {'new_password1': 'password1',
+                     'new_password2': 'password2'}
+        response = self.client.post(url, form_data)
+        self.assertFormError(
+            response, 'form', 'new_password2',
+            SetPasswordForm.error_messages['password_mismatch'])
+
+    def test_valid(self):
+        """
+        Test that matching passwords will be saved.
+        """
+        token = default_token_generator.make_token(self.user)
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        url = reverse(
+            'accounts:password_reset_confirm',
+            kwargs=dict(uidb64=uid, token=token))
+        self.form_in_response(url)
+        form_data = {'new_password1': 'newpass', 'new_password2': 'newpass'}
+        response = self.client.post(url, form_data)
+        self.assertRedirects(response, reverse('accounts:login'))
+
+    def test_tampered(self):
+        """
+        Test that a tampered token or uid will not process.
+        """
+        urlname = 'accounts:password_reset_confirm'
+
+        # invalid uid, valid token
+        uid = 'invalid'
+        token = default_token_generator.make_token(self.user)
+        url = reverse(urlname, kwargs=dict(uidb64=uid, token=token))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        # valid uid, invalid token
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = 'not-valid-token'
+        url = reverse(urlname, kwargs=dict(uidb64=uid, token=token))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class PasswordChangeView(TestCaseWithUser):
+    def test_get(self):
+        """
+        Test that the password change page contains the form.
+        """
+        self.login()
+        self.form_in_response(reverse('accounts:password_change'))
+
+    def test_invalid(self):
+        """
+        Test that non matching passwords or invalid current password will
+        caught.
+        """
+        self.login()
+        form_data = {'old_password': 'notright', 'new_password1': 'password1',
+                     'new_password2': 'password2'}
+        response = self.client.post(
+            reverse('accounts:password_change'), form_data)
+        self.assertFormError(
+            response, 'form', 'old_password',
+            PasswordChangeForm.error_messages['password_incorrect'])
+        self.assertFormError(
+            response, 'form', 'new_password2',
+            PasswordChangeForm.error_messages['password_mismatch'])
+
+    def test_valid(self):
+        """
+        Test that the valid passwords can be changed.
+        """
+        self.login()
+        form_data = {'old_password': self.password, 'new_password1': 'newpass',
+                     'new_password2': 'newpass'}
+        response = self.client.post(
+            reverse('accounts:password_change'), form_data)
+        self.assertRedirects(response, reverse('accounts:password_change'))
