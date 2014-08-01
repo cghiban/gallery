@@ -1,10 +1,19 @@
 import json
+import os
+import shutil
+import tempfile
 
-from django.test import TestCase, Client
+from django.db.models.fields.files import ImageFieldFile
+
+from django.test import TestCase, Client, override_settings
 from django.core.urlresolvers import reverse
+from django.core.files import File
 from django.contrib.auth.models import User
 
-from .models import Location, Person, Album
+from .models import Location, Person, Album, Photo, Thumbnail
+
+
+MEDIA_ROOT = tempfile.mkdtemp()
 
 
 class SuperuserTest(TestCase):
@@ -205,3 +214,58 @@ class AlbumViews(SuperuserTest):
             reverse('album_delete', kwargs=dict(pk=1)), data)
         self.assertTrue('url' in result)
         self.assertEqual(Album.objects.count(), 0)
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class ModelTest(TestCase):
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT)
+
+    def setUp(self):
+        self.person = Person.objects.create(name='person1')
+        self.location = Location.objects.create(name='location1')
+        self.album = self.location.album_set.create(name='album1')
+        self.photo = self.album.photo_set.create(name='photo1')
+        self.photo.people.add(self.person)
+        self.photo.file = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+        self.photo.save()
+        self.thumbnail = Thumbnail.objects.create(
+            photo=self.photo, size='200x200-fit')
+
+    def test_str(self):
+        """
+        Test the various outputs for __str__.
+        """
+        self.assertEqual(str(self.location), self.location.name)
+        self.assertEqual(str(self.album), self.album.name)
+        self.assertEqual(str(self.photo), self.photo.name)
+        self.assertEqual(str(self.person), self.person.name)
+        self.assertEqual(str(self.thumbnail), 'photo1 (200x200-fit)')
+
+    def test_cover_photo(self):
+        """
+        Test that cover photo is an instance of Photo.
+        """
+        self.assertTrue(isinstance(self.location.cover_photo, Photo))
+        self.assertTrue(isinstance(self.album.cover_photo, Photo))
+        self.assertTrue(isinstance(self.person.cover_photo, Photo))
+
+    def test_photo_thumbnail(self):
+        """
+        Test that a thumbnail can be created for a photo.
+        """
+        thumbnail = self.photo.thumbnail('800x600-fit')
+        self.assertTrue(isinstance(thumbnail, ImageFieldFile))
+        self.assertTrue(isinstance(self.photo.file_medium, ImageFieldFile))
+        self.assertTrue(isinstance(self.photo.file_thumb, ImageFieldFile))
+
+
+    def test_album_date_display(self):
+        """
+        Test the date display for an album.
+        """
+        self.album.month = 12
+        self.album.year = 2013
+        self.assertEqual(self.album.get_date_display(), 'December 2013')
