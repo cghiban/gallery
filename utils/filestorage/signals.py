@@ -11,12 +11,8 @@ def delete_files_on_delete(sender, instance, **kwargs):
             continue
         file_field = getattr(instance, field.name)
         storage = file_field.storage
-        try:
-            path = file_field.path
-        except ValueError:
-            # This means that for some reason the file is already deleted.
-            return False
-        storage.delete(path)
+        if file_field.path:
+            storage.delete(file_field.path)
 
 
 def delete_files_on_change(sender, instance, **kwargs):
@@ -36,10 +32,5 @@ def delete_files_on_change(sender, instance, **kwargs):
             continue
         old_file_field = getattr(old_instance, field.name)
         new_file_field = getattr(instance, field.name)
-        try:
-            path = old_file_field.path
-        except ValueError:
-            # This means that for some reason the file is already deleted.
-            return False
-        if old_file_field.name != new_file_field.name:
-            old_file_field.storage.delete(path)
+        if old_file_field.path and old_file_field.name != new_file_field.name:
+            old_file_field.storage.delete(old_file_field.path)
