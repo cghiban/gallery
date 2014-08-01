@@ -4,10 +4,10 @@ from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
-from .models import Location
+from .models import Location, Person, Album
 
-class SuperusreViews(TestCase):
 
+class SuperuserTest(TestCase):
     def ajax_post(self, url, form_data):
         response = self.client.post(
             url, form_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -16,144 +16,192 @@ class SuperusreViews(TestCase):
     def setUp(self):
         # create a superuser so that we can test create/update
         self.user = User.objects.create_superuser(
-            'jacob', 'jacob@example.com', 'secret')
+            'tim', 'tim@example.com', 'secret')
         self.client = Client()
-        self.client.login(username='jacob', password='secret')
+        self.client.login(username='tim', password='secret')
 
-    def test_location(self):
+
+class LocationViews(SuperuserTest):
+    def test_list(self):
         """
-        Test the following location workflow:
-        - Create invalid location (fails).
-        - Create a valid location.
-        - View the location list and make sure it's there.
-        - View the location.
-        - Rename the location.
-        - Delete the location.
+        Test that the location list view works properly.
         """
-        # create invalid location, display form again
-        result = self.ajax_post(reverse('location_create'), {'name': ''})
-        self.assertTrue('html' in result)
-
-        # create valid location, redirects
-        result = self.ajax_post(reverse('location_create'), {'name': 'test location'})
-        self.assertTrue('url' in result)
-        location_url = result['url']
-
-        # location list
         response = self.client.get(reverse('locations'))
         self.assertTrue('location_list' in response.context)
         self.assertTrue('paginator' in response.context)
-        first_location = response.context['location_list'][0]
-        self.assertEqual(first_location.get_absolute_url(), location_url)
 
-        # location detail
-        response = self.client.get(result['url'])
+    def test_create(self):
+        """
+        Test that location creation works properly.
+        """
+        # invalid location, display form again
+        data = {'name': ''}
+        result = self.ajax_post(reverse('location_create'), data)
+        self.assertTrue('html' in result)
+        # valid location, redirect (via ajax)
+        data = {'name': 'location1'}
+        result = self.ajax_post(reverse('location_create'), data)
+        self.assertTrue('url' in result)
+
+    def test_detail(self):
+        """
+        Test that the location detail view works properly.
+        """
+        Location.objects.create(name='location1')
+        response = self.client.get(reverse('location', kwargs=dict(pk=1)))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('location' in response.context)
         self.assertTrue('paginator' in response.context)
         self.assertTrue('back_link' in response.context)
         self.assertTrue('album_list' in response.context)
 
-        # rename valid location, redirects
-        result = self.ajax_post(reverse('location_rename', args=[1, ]), {'name': 'new location'})
-        self.assertTrue('url' in result)
-
-        # rename invalid location, display form again
-        result = self.ajax_post(reverse('location_rename', args=[1, ]), {'name': ''})
-        self.assertTrue('html' in result)
-
-        # delete location
-        result = self.ajax_post(reverse('location_delete', args=[1, ]), {'submit': True})
-        self.assertTrue('url' in result)
-
-    def test_person(self):
+    def test_rename(self):
         """
-        Test the following person workflow:
-        - Create invalid person (fails).
-        - Create a valid person.
-        - View the person list and make sure it's there.
-        - View the person.
-        - Rename the person.
-        - Delete the person.
+        Test that the location rename view works properly.
         """
-        # create invalid person, display form again
-        result = self.ajax_post(reverse('person_create'), {'name': ''})
+        Location.objects.create(name='location1')
+        self.assertEqual(Location.objects.get(pk=1).name, 'location1')
+        # invalid location, display form again
+        data = {'name': ''}
+        result = self.ajax_post(
+            reverse('location_rename', kwargs=dict(pk=1)), data)
         self.assertTrue('html' in result)
-
-        # create valid person, redirects
-        result = self.ajax_post(reverse('person_create'), {'name': 'test person'})
+        # valid location, redirect (via ajax)
+        data = {'name': 'location2'}
+        result = self.ajax_post(
+            reverse('location_rename', kwargs=dict(pk=1)), data)
         self.assertTrue('url' in result)
-        person_url = result['url']
+        self.assertEqual(Location.objects.get(pk=1).name, 'location2')
 
-        # person list
+    def test_delete(self):
+        Location.objects.create(name='location1')
+        self.assertEqual(Location.objects.count(), 1)
+        data = {'submit': True}
+        result = self.ajax_post(
+            reverse('location_delete', kwargs=dict(pk=1)), data)
+        self.assertTrue('url' in result)
+        self.assertEqual(Location.objects.count(), 0)
+
+
+class PersonViews(SuperuserTest):
+    def test_list(self):
+        """
+        Test that the person list view works properly.
+        """
         response = self.client.get(reverse('people'))
         self.assertTrue('person_list' in response.context)
         self.assertTrue('paginator' in response.context)
-        first_person = response.context['person_list'][0]
-        self.assertEqual(first_person.get_absolute_url(), person_url)
 
-        # person detail
-        response = self.client.get(result['url'])
+    def test_create(self):
+        """
+        Test that person creation works properly.
+        """
+        # invalid person, display form again
+        data = {'name': ''}
+        result = self.ajax_post(reverse('person_create'), data)
+        self.assertTrue('html' in result)
+        # valid person, redirect (via ajax)
+        data = {'name': 'person1'}
+        result = self.ajax_post(reverse('person_create'), data)
+        self.assertTrue('url' in result)
+
+    def test_detail(self):
+        """
+        Test that the person detail view works properly.
+        """
+        Person.objects.create(name='person1')
+        response = self.client.get(reverse('person', kwargs=dict(pk=1)))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('person' in response.context)
         self.assertTrue('paginator' in response.context)
         self.assertTrue('back_link' in response.context)
         self.assertTrue('photo_list' in response.context)
 
-        # rename valid person, redirects
-        result = self.ajax_post(reverse('person_rename', args=[1, ]), {'name': 'new person'})
-        self.assertTrue('url' in result)
-
-        # rename invalid person, display form again
-        result = self.ajax_post(reverse('person_rename', args=[1, ]), {'name': ''})
-        self.assertTrue('html' in result)
-
-        # delete person
-        result = self.ajax_post(reverse('person_delete', args=[1, ]), {'submit': True})
-        self.assertTrue('url' in result)
-
-    def test_album(self):
+    def test_rename(self):
         """
-        Test the following album workflow:
-        - Create invalid album (fails).
-        - Create a valid album.
-        - View the album list and make sure it's there.
-        - View the album.
-        - Edit the album.
-        - Delete the album.
+        Test that the person rename view works properly.
         """
-        # create invalid album, display form again
-        result = self.ajax_post(reverse('album_create'), {'name': ''})
+        Person.objects.create(name='person1')
+        self.assertEqual(Person.objects.get(pk=1).name, 'person1')
+        # invalid person, display form again
+        data = {'name': ''}
+        result = self.ajax_post(
+            reverse('person_rename', kwargs=dict(pk=1)), data)
         self.assertTrue('html' in result)
-
-        # create valid album, redirects
-        result = self.ajax_post(reverse('album_create'), {'name': 'test album'})
+        # valid person, redirect (via ajax)
+        data = {'name': 'person2'}
+        result = self.ajax_post(
+            reverse('person_rename', kwargs=dict(pk=1)), data)
         self.assertTrue('url' in result)
-        album_url = result['url']
+        self.assertEqual(Person.objects.get(pk=1).name, 'person2')
 
-        # album list
+    def test_delete(self):
+        Person.objects.create(name='person1')
+        self.assertEqual(Person.objects.count(), 1)
+        data = {'submit': True}
+        result = self.ajax_post(
+            reverse('person_delete', kwargs=dict(pk=1)), data)
+        self.assertTrue('url' in result)
+        self.assertEqual(Person.objects.count(), 0)
+
+
+class AlbumViews(SuperuserTest):
+    def test_list(self):
+        """
+        Test that the album list view works properly.
+        """
         response = self.client.get(reverse('albums'))
         self.assertTrue('album_list' in response.context)
         self.assertTrue('paginator' in response.context)
-        first_album = response.context['album_list'][0]
-        self.assertEqual(first_album.get_absolute_url(), album_url)
 
-        # album detail
-        response = self.client.get(result['url'])
+    def test_create(self):
+        """
+        Test that album creation works properly.
+        """
+        # invalid album, display form again
+        data = {'name': ''}
+        result = self.ajax_post(reverse('album_create'), data)
+        self.assertTrue('html' in result)
+        # valid album, redirect (via ajax)
+        data = {'name': 'album1'}
+        result = self.ajax_post(reverse('album_create'), data)
+        self.assertTrue('url' in result)
+
+    def test_detail(self):
+        """
+        Test that the album detail view works properly.
+        """
+        Album.objects.create(name='album1')
+        response = self.client.get(reverse('album', kwargs=dict(pk=1)))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('album' in response.context)
         self.assertTrue('paginator' in response.context)
         self.assertTrue('back_link' in response.context)
         self.assertTrue('photo_list' in response.context)
 
-        # edit valid album, redirects
-        result = self.ajax_post(reverse('album_edit', args=[1, ]), {'name': 'new album'})
-        self.assertTrue('url' in result)
-
-        # edit invalid album, display form again
-        result = self.ajax_post(reverse('album_edit', args=[1, ]), {'name': ''})
+    def test_edit(self):
+        """
+        Test that the album edit view works properly.
+        """
+        Album.objects.create(name='album1')
+        self.assertEqual(Album.objects.get(pk=1).name, 'album1')
+        # invalid album, display form again
+        data = {'name': ''}
+        result = self.ajax_post(
+            reverse('album_edit', kwargs=dict(pk=1)), data)
         self.assertTrue('html' in result)
-
-        # delete album
-        result = self.ajax_post(reverse('album_delete', args=[1, ]), {'submit': True})
+        # valid album, redirect (via ajax)
+        data = {'name': 'album2'}
+        result = self.ajax_post(
+            reverse('album_edit', kwargs=dict(pk=1)), data)
         self.assertTrue('url' in result)
+        self.assertEqual(Album.objects.get(pk=1).name, 'album2')
+
+    def test_delete(self):
+        Album.objects.create(name='album1')
+        self.assertEqual(Album.objects.count(), 1)
+        data = {'submit': True}
+        result = self.ajax_post(
+            reverse('album_delete', kwargs=dict(pk=1)), data)
+        self.assertTrue('url' in result)
+        self.assertEqual(Album.objects.count(), 0)
