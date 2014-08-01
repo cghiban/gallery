@@ -1,11 +1,9 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.conf import settings
 from django.utils import timezone
 from django.db import models
-from django.db.models import signals
 
 
 class Action(models.Model):
@@ -85,5 +83,6 @@ def delete_actions_on_delete(sender, **kwargs):
         target_object_id=instance_pk,
         target_content_type=content_type
     ).delete()
+
 
 models.signals.pre_delete.connect(delete_actions_on_delete)
