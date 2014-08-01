@@ -19,15 +19,12 @@ class TestCaseWithUser(TestCase):
         self.client = Client()
         self.password = 'secret'
         self.user = User.objects.create_user(
-            username='jacob',
-            email='jacob@example.com',
+            username='tim',
+            email='tim@example.com',
             password=self.password)
 
     def login(self):
-        form_data = {'username': self.user.username, 'password': self.password}
-        response = self.client.post(reverse('accounts:login'), form_data)
-        self.assertTrue(SESSION_KEY in self.client.session)
-        return response
+        self.client.login(username='tim', password='secret')
 
     def form_in_response(self, url):
         response = self.client.get(url)
@@ -48,12 +45,12 @@ class ProfileView(TestCaseWithUser):
         Test that a user can update his profile successfully.
         """
         self.login()
-        form_data = {'first_name': 'Jacob', 'last_name': 'User',
+        form_data = {'first_name': 'Tim', 'last_name': 'User',
                      'email': 'newemail@example.com'}
         response = self.client.post(reverse('accounts:profile'), form_data)
         self.assertRedirects(response, reverse('accounts:profile'))
         user = User.objects.get(username=self.user.username)
-        self.assertEqual(user.first_name, 'Jacob')
+        self.assertEqual(user.first_name, 'Tim')
         self.assertEqual(user.last_name, 'User')
         self.assertEqual(user.email, 'newemail@example.com')
 
@@ -62,7 +59,7 @@ class ProfileView(TestCaseWithUser):
         Test that a user cannot update his username through profile.
         """
         self.login()
-        form_data = {'username': 'hacked', 'email': 'jacob@example.com'}
+        form_data = {'username': 'hacked', 'email': 'tim@example.com'}
         response = self.client.post(reverse('accounts:profile'), form_data)
         self.assertRedirects(response, reverse('accounts:profile'))
         with self.assertRaises(User.DoesNotExist):
@@ -74,11 +71,11 @@ class ProfileView(TestCaseWithUser):
         """
         self.login()
         self.user = User.objects.create_user(
-            username='jacob2',
-            email='jacob2@example.com',
+            username='tim2',
+            email='tim2@example.com',
             password='welcome2')
-        form_data = {'first_name': 'Jacob', 'last_name': 'User',
-                     'email': 'jacob2@example.com'}
+        form_data = {'first_name': 'Tim', 'last_name': 'User',
+                     'email': 'tim2@example.com'}
         response = self.client.post(reverse('accounts:profile'), form_data)
         self.assertFormError(
             response, 'form', 'email',
