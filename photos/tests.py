@@ -1,5 +1,4 @@
 import json
-import os
 import shutil
 import tempfile
 
@@ -218,7 +217,6 @@ class AlbumViews(SuperuserTest):
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class ModelTest(TestCase):
-
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(MEDIA_ROOT)
