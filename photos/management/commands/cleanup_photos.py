@@ -12,9 +12,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
-        self.cleanup_model_files(Photo, 'file', 'photos', verbosity=verbosity)
-        self.cleanup_model_files(Thumbnail, 'file', 'photos/thumbnails',
-                                 verbosity=verbosity)
+        self.cleanup_model_files(Photo, 'file', 'photos', verbosity)
+        self.cleanup_model_files(
+            Thumbnail, 'file', 'photos/thumbnails', verbosity)
         self.stdout.write('Successfully cleaned up.')
 
     def cleanup_model_files(self, model_class, field, dir, verbosity):
