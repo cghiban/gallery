@@ -3,7 +3,6 @@ import shutil
 import tempfile
 
 from django.db.models.fields.files import ImageFieldFile
-
 from django.test import TestCase, Client, override_settings
 from django.core.urlresolvers import reverse
 from django.core.files import File
@@ -259,7 +258,6 @@ class ModelTest(TestCase):
         self.assertTrue(isinstance(self.photo.file_medium, ImageFieldFile))
         self.assertTrue(isinstance(self.photo.file_thumb, ImageFieldFile))
 
-
     def test_album_date_display(self):
         """
         Test the date display for an album.
@@ -267,3 +265,9 @@ class ModelTest(TestCase):
         self.album.month = 12
         self.album.year = 2013
         self.assertEqual(self.album.get_date_display(), 'December 2013')
+        self.album.month = 12
+        self.album.year = None
+        self.assertEqual(self.album.get_date_display(), 'December')
+        self.album.month = None
+        self.album.year = 2013
+        self.assertEqual(self.album.get_date_display(), '2013')
