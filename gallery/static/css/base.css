@@ -144,6 +144,7 @@ body {
 
 .albums li {
     height: 250px;
+    vertical-align: top;
 }
 
 .albums li .count,
@@ -151,9 +152,9 @@ body {
     display: block;
 }
 
-.albums a {
+.albums li a {
     text-decoration: none;
-    color: #000;
+    color: #000 !important;
 }
 
 .albums img,
