@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% load i18n %}
-{% load humanize %}
 
 {% block title %}{% trans 'Albums' %}{% endblock %}
 {% block header %}{% trans 'Albums' %}{% endblock %}
@@ -22,20 +21,10 @@
         {% for album in album_list %}
             <li>
                 <a href="{{ album.get_absolute_url }}">
-                    {% if album.cover_photo %}
-                        <img src="{{ album.cover_photo.file_thumb.url }}" alt="{{ album.name }}">
-                    {% else %}
-                        <img src="{{ STATIC_URL }}/img/cover-blank.png">
-                    {% endif %}
+                    {% include 'photos/_cover_photo.html' with object=album %}
                     <span class="name">{{ album.name|truncatechars:"45" }}</span>
                     {% with count=album.photo_set.count %}
-                        <span class="count">
-                            {% blocktrans count counter=count with total=count|intcomma %}
-                                {{ total }} photo
-                            {% plural %}
-                                {{ total }} photos
-                            {% endblocktrans %}
-                        </span>
+                        {% include 'photos/_photo_count.html' %}
                     {% endwith %}
                 </a>
             </li>

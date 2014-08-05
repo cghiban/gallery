@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% load i18n %}
-{% load humanize %}
 
 {% block title %}{% trans 'Locations' %}{% endblock %}
 {% block header %}{% trans 'Locations' %}{% endblock %}
@@ -20,22 +19,12 @@
 {% spaceless %}
     <ul class="albums">
         {% for location in location_list %}
-            <li class="thumb">
+            <li>
                 <a href="{{ location.get_absolute_url }}">
-                    {% if location.cover_photo %}
-                        <img src="{{ location.cover_photo.file_thumb.url|default:"" }}" alt="{{ location.name }}">
-                    {% else %}
-                        <img src="{{ STATIC_URL }}/img/cover-blank.png">
-                    {% endif %}
+                    {% include 'photos/_cover_photo.html' with object=location %}
                     <span class="name">{{ location.name|truncatechars:"45" }}</span>
                     {% with count=location.album_set.count %}
-                        <span class="count">
-                            {% blocktrans count counter=count with total=count|intcomma %}
-                                {{ total }} album
-                            {% plural %}
-                                {{ total }} albums
-                            {% endblocktrans %}
-                        </span>
+                        {% include 'photos/_album_count.html' %}
                     {% endwith %}
                 </a>
             </li>
