@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="photo-list">
+    <div class="photos">
         {% for photo in photo_list %}
             <div class="thumb">
                 <a href="{% url 'photo' pk=photo.pk person_pk=person.pk %}">

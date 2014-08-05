@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="album-list">
+    <div class="albums">
         {% for album in album_list %}
             <div class="thumb">
                 <a href="{% url 'album' pk=album.pk location_pk=location.pk %}">
