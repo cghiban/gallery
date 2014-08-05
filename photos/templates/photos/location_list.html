@@ -7,11 +7,13 @@
 {% block header %}{% trans 'Locations' %}{% endblock %}
 
 {% block actions %}
-    <span class="actions location-actions">
+    <ul class="actions location-actions">
+        {% spaceless %}
         {% if perms.photos.add_location %}
-            <a href="{% url 'location_create' %}" data-modal="form">{% trans 'Create Location' %}</a>
+           <li><a href="{% url 'location_create' %}" data-modal="form">{% trans 'Create Location' %}</a></li>
         {% endif %}
-    </span>
+        {% endspaceless %}
+    </ul>
 {% endblock %}
 
 {% block content %}

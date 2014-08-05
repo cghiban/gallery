@@ -6,14 +6,15 @@
 {% block header %}{% trans 'Results' %}{% endblock %}
 
 {% block content %}
-    <div class="photo-list">
+{% spaceless %}
+    <ul class="photos">
         {% for photo in photo_list %}
-            <div class="thumb">
+            <li>
                 <a href="{% url 'photo' pk=photo.pk query=query %}">
                     <img src="{{ photo.file_thumb.url }}" alt="{{ photo.name }}">
                 </a>
-            </div>
+            </li>
         {% endfor %}
-        <div class="clear"></div>
-    </div>
+    </ul>
+{% endspaceless %}
 {% endblock %}

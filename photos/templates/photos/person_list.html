@@ -7,11 +7,13 @@
 {% block header %}{% trans 'People' %}{% endblock %}
 
 {% block actions %}
-    <span class="actions person-actions">
+    <ul class="actions person-actions">
+        {% spaceless %}
         {% if perms.photos.add_person %}
-            <a href="{% url 'person_create' %}" data-modal="form">{% trans 'Create Person' %}</a>
+            <li><a href="{% url 'person_create' %}" data-modal="form">{% trans 'Create Person' %}</a></li>
         {% endif %}
-    </span>
+        {% endspaceless %}
+    </ul>
 {% endblock %}
 
 {% block content %}

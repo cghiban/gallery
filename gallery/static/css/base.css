@@ -2,9 +2,9 @@ body {
     background: #d2d2d2;
 }
 
-/** topbar styles ************************************************************/
+/** header, topbar, and toolbar **********************************************/
 
-#topbar {
+.header {
     display: table;
     width: 100%;
 
@@ -13,57 +13,33 @@ body {
     color: #d2d2d2;
 }
 
-#topbar h1 a {
+#toolbar {
+    padding: 10px 15px;
+    background: #444;
+}
+
+.header h1 a {
     color: #fff;
     text-decoration: none
 }
 
-#topbar .title,
-#topbar .links {
+.header .right,
+.header .left,
+.header .center {
     display: table-cell;
-}
-
-#topbar .links {
-    text-align: right;
     vertical-align: middle;
 }
 
-#topbar .links a {
-    color: #fff !important;
-    text-decoration: none;
-    border-right: 1px solid #666;
-    padding-left: 8px;
-    padding-right: 10px;
+.header .center {
+    text-align: center;
 }
 
-#topbar .links a:last-child {
-    border-right: 0px !important;
-    padding-right: 0px;
-}
-
-#topbar .links a:hover {
-    text-decoration: underline;
-}
-
-/** toolbar styles ************************************************************/
-
-#toolbar {
-    display: table;
-    width: 100%;
-
-    padding: 10px 15px;
-    background: #444;
-    color: #d2d2d2;
-}
-
-#toolbar .right {
+.header .right {
     text-align: right;
-    vertical-align: middle;
 }
 
-#toolbar .left {
+.header .left {
     text-align: left;
-    vertical-align: middle;
 }
 
 #toolbar .left,
@@ -71,95 +47,74 @@ body {
     width: 40%;
 }
 
-#toolbar .pagination {
-    text-align: center;
-    vertical-align: middle;
+.header .right li {
+    display: inline;
+    border-right: 1px solid #999;
+    padding: 0 8px;
 }
 
-#toolbar .right,
-#toolbar .left,
-#toolbar .pagination {
-    display: table-cell;
+.header .right li:last-child {
+    border-right: 0 !important;
+    padding-right: 0;
 }
 
-#toolbar .left a {
+.header .right a,
+.header .left a {
     color: #fff !important;
     text-decoration: none;
 }
 
-#toolbar .right a {
-    color: #fff !important;
-    text-decoration: none;
-    padding-left: 8px;
-    padding-right: 10px;
-    border-right: 1px solid #666;
-}
-
-#toolbar .right a:last-child {
-    border-right: 0px !important;
-    padding-right: 0px;
-}
-
-#toolbar .left a:hover,
-#toolbar .right a:hover {
+.header .left a:hover,
+.header .right a:hover {
     text-decoration: underline;
 }
 
-#toolbar img {
-    vertical-align: middle;
-    border: 1px solid red;
+/** paginator ****************************************************************/
+
+.paginator li {
+    display: inline;
 }
 
-#toolbar .pagination .count,
-#toolbar .pagination a,
-#toolbar .pagination span {
-    display: inline-block;
-    padding: 3px 6px;
-    vertical-align: middle;
-}
-
-#toolbar .pagination .count {
+.paginator li.count {
     padding: 3px 12px;
 }
 
-#toolbar .pagination a {
+.paginator li span,
+.paginator li a {
+    padding: 3px 6px;
+}
+
+.paginator li a {
     background: #000;
     color: #fff;
     text-decoration: none;
 }
 
-#toolbar .pagination span.next,
-#toolbar .pagination span.previous {
-    color: #ccc;
-}
-
 /** body styles based on size ************************************************/
 
-#body-small #content {
-    border: 1px solid #FFF;
-    background: #FFF;
-    width: 350px;
-    margin: 10px auto;
-}
-
+#body-small #content,
 #body-medium #content {
     border: 1px solid #FFF;
     background: #FFF;
-    width: 640px;
     margin: 10px auto;
+}
+
+#body-small #content {
+    width: 350px;
+}
+
+#body-medium #content {
+    width: 640px;
 }
 
 #body-large #content {
     margin: 10px 10px 20px 10px;
-    /*width: 1100px;*/
 }
 
 #body-small #toolbar,
 #body-medium #toolbar {
     display: none;
 }
-
-/** content styles ***********************************************************/
 
 #content p,
 #content h2 {
@@ -172,55 +127,109 @@ body {
 
 /** album list and thumbnail styles ******************************************/
 
-.album-list a {
+.photos,
+.albums {
+    margin: 0 auto;
+    text-align: center;
+}
+
+.photos li,
+.albums li {
+    width: 200px;
+    height: 200px;
+    margin: 8px;
+    display: inline-block;
+    text-align: center;
+}
+
+.albums li {
+    height: 250px;
+}
+
+.albums li .count,
+.albums li .name {
+    display: block;
+}
+
+.albums a {
     text-decoration: none;
     color: #000;
 }
 
-.album-list .name {
+.albums img,
+.photos img,
+.photo img {
+    box-shadow: 0 0 7px #444;
 }
 
-.album-list .count {
-}
-
-.photo-list,
-.album-list {
-    margin: 0px auto;
+.photo {
+    margin: 20px 10px 0 10px;
     text-align: center;
 }
 
-.album-list .thumb,
-.photo-list .thumb {
-    margin: 10px;
-
-    width: 200px;
-    height: 200px;
-
-    display: inline-block;
-}
-
-.album-list .thumb {
-    height: 250px;
-    text-align: center;
-}
-
-.thumb img,
-.photo-main img {
-    box-shadow: 0px 0px 7px #444;
-}
-
-.photo-main {
-    margin: 20px 10px 0px 10px;
-    text-align: center;
-}
-
-.photo-main img {
+.photo img {
     max-width: 100%;
     height: auto;
 }
 
-.photo-main .name {
+.photo .name {
     margin-top: 5px;
+}
+
+/** modal window styles ******************************************************/
+
+#modal-wrapper {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99999;
+    opacity: 1;
+}
+
+#modal-wrapper > div {
+    width: 400px;
+    position: relative;
+    border: 1px solid #fff;
+    margin: 10% auto;
+    padding: 5px;
+    background: #fff;
+    text-align: center;
+}
+
+#modal p,
+#modal h2 {
+    margin: 15px;
+}
+
+#modal #id_name,
+#modal #id_people {
+    width: 300px;
+}
+
+/** messages styles ******************************************/
+
+#messages li {
+    width: 550px;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+    padding: 8px;
+}
+
+#messages .success {
+    background-color: #DFF2BF;
+}
+
+#messages .error {
+    background-color: #FFBABA;
+}
+
+#messages .warning {
+    background-color: #FFBABA;
 }
 
 /** form styles **************************************************************/
@@ -264,7 +273,6 @@ form .field .helptext {
     width: 100%;
 }
 
-
 form input[type="text"],
 form input[type="password"],
 form input[type="email"],
@@ -280,7 +288,7 @@ form input[readonly="True"] {
 
 form input[type="submit"] {
     color: #FFF;
-    border: 0px;
+    border: 0;
     padding: 8px 20px;
     background: #313E53;
     cursor: pointer;
@@ -292,7 +300,7 @@ form input[type="submit"]:hover {
 
 form input[type="button"] {
     color: #FFF;
-    border: 0px;
+    border: 0;
     padding: 8px 20px;
     background: #606060;
     cursor: pointer;
@@ -305,60 +313,4 @@ form input[type="button"]:hover {
 form.search .helptext {
     visibility: hidden;
     display: none;
-}
-
-/** modal window styles ******************************************************/
-
-#modal-wrapper {
-    display: none;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 99999;
-    opacity: 1;
-}
-
-#modal-wrapper > div {
-    width: 400px;
-    position: relative;
-    border: 1px solid #fff;
-    margin: 10% auto;
-    padding: 5px;
-    background: #fff;
-    text-align: center;
-}
-
-#modal p,
-#modal h2 {
-    margin: 15px;
-}
-
-#modal #id_name,
-#modal #id_people {
-    width: 300px;
-}
-
-/** messages styles ******************************************/
-
-#messages li {
-    width: 550px;
-    margin: 0px auto;
-    display: block;
-    text-align: center;
-    padding: 8px;
-}
-
-#messages .success {
-    background-color: #DFF2BF;
-}
-
-#messages .error {
-    background-color: #FFBABA;
-}
-
-#messages .warning {
-    background-color: #FFBABA;
 }

@@ -6,45 +6,49 @@
 {% block header %}{{ photo.album.name }}{% endblock %}
 
 {% block pagination %}
-
-    {% if paginator.has_previous %}
-        <a href="{{ paginator.previous_url }}" class="previous" data-navigate="left">&lt&lt;&nbsp;{% trans "Prev" %}</a>
-    {% else %}
-        <span class="previous">&lt&lt;&nbsp;{% trans "Prev" %}</span>
-    {% endif %}
-
-    <span class="count">
-        {{ paginator.index }} {% trans 'of' %} {{ paginator.count }}
-    </span>
-
-    {% if paginator.has_next %}
-        <a href="{{ paginator.next_url }}" class="next" data-navigate="right">{% trans "Next" %}&nbsp;&gt;&gt;</a>
-    {% else %}
-        <span class="next">{% trans "Next" %}&nbsp;&gt;&gt;</span>
-    {% endif %}
-
+{% spaceless %}
+    <ul class="paginator">
+        <li class="prev">
+            {% if paginator.has_previous %}
+                <a href="{{ paginator.previous_url }}" data-navigate="left">&lsaquo;&nbsp;{% trans 'Prev' %}</a>
+            {% else %}
+                <span>&lsaquo;&nbsp;{% trans 'Prev' %}</span>
+            {% endif %}
+        </li>
+        <li class="count">{{ paginator.index }} {% trans 'of' %} {{ paginator.count }}</li>
+        <li class="next">
+            {% if paginator.has_next %}
+                <a href="{{ paginator.next_url }}" data-navigate="right">{% trans 'Next' %}&nbsp;&rarr;</a>
+            {% else %}
+                <span>{% trans 'Next' %}&nbsp;&rarr;</span>
+            {% endif %}
+        </li>
+    </ul>
+{% endspaceless %}
 {% endblock %}
 
 {% block actions %}
-    <div class="actions photo-actions">
+    <ul class="actions photo-actions">
+        {% spaceless %}
         {% if perms.photos.change_photo %}
-            <a href="{% url 'photo_rotate' photo.pk %}" data-modal="rotate">{% trans 'Rotate' %}</a>
-            <a href="{% url 'photo_rename' photo.pk %}" data-modal="form">{% trans 'Rename' %}</a>
-            <a href="{% url 'photo_move' photo.pk %}" data-modal="form">{% trans 'Move' %}</a>
-            <a href="{% url 'photo_tag' photo.pk %}" data-modal="form">{% trans 'Tag' %}</a>
+            <li><a href="{% url 'photo_rotate' photo.pk %}" data-modal="rotate">{% trans 'Rotate' %}</a></li>
+            <li><a href="{% url 'photo_rename' photo.pk %}" data-modal="form">{% trans 'Rename' %}</a></li>
+            <li><a href="{% url 'photo_move' photo.pk %}" data-modal="form">{% trans 'Move' %}</a></li>
+            <li><a href="{% url 'photo_tag' photo.pk %}" data-modal="form">{% trans 'Tag' %}</a></li>
         {% endif %}
         {% if perms.photos.delete_photo %}
-            <a href="{% url 'photo_delete' photo.pk %}" data-modal="form">{% trans 'Delete' %}</a>
+            <li><a href="{% url 'photo_delete' photo.pk %}" data-modal="form">{% trans 'Delete' %}</a></li>
         {% endif %}
-        <a href="{% url 'photo_download' photo.pk %}">{% trans 'Download' %}</a>
-    </div>
+        <li><a href="{% url 'photo_download' photo.pk %}">{% trans 'Download' %}</a></li>
+        {% endspaceless %}
+    </ul>
 {% endblock %}
 
 {% block content %}
-    <div class="photo-main">
-        <div class="photo">
-            <img src="{{ photo.file_medium.url }}" alt="{{ photo.name }}">
-        </div>
+{% spaceless %}
+    <div class="photo">
+        <img src="{{ photo.file_medium.url }}" alt="{{ photo.name }}">
         <div class="name">{{ photo.name }}</div>
     </div>
+{% endspaceless %}
 {% endblock %}

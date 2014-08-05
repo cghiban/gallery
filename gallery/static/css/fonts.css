@@ -1,4 +1,4 @@
-div, p, input, select, textarea {
+div, p, li, input, select, textarea {
     font: normal 12px "Lucida Grande", "Calibri", "Verdana", sans-serif
 }
 
@@ -17,15 +17,16 @@ h1 .sub {
     font-size: 16px;
 }
 
-.album-list .name, .photo-main .name {
+.albums .name,
+.photo .name {
     font-weight: bold;
 }
 
-.album-list .count {
+.albums .count {
     font-size: 11px;
 }
 
-.photo-main .name {
+.photo .name {
     font-size: 14px;
 }
 

@@ -1,5 +1,7 @@
 {% load i18n %}
+
 <h2>{{ form_title }}</h2>
+
 <form method="post" action="{{ request.path }}">
     {% for message in form_messages %}
         <p>{{ message }}</p>

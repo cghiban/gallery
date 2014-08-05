@@ -15,54 +15,56 @@
 </head>
 <body id="body-{% block width %}large{% endblock %}">
 
-<div id="topbar">
-    <div class="title">
+<div id="topbar" class="header">
+    <div class="left">
         <h1>
             <a href="{% url 'home' %}" data-navigate="up">{% trans 'Photo Gallery' %}</a>
             <span class="sub">{% block header %}Untitled Page{% endblock %}</span>
         </h1>
     </div>
-    <div class="links">
+    <ul class="right">
+        {% spaceless %}
         {% if user.is_authenticated %}
-            <a href="{% url 'albums' %}">{% trans 'Albums' %}</a>
-            <a href="{% url 'locations' %}">{% trans 'Locations' %}</a>
-            <a href="{% url 'people' %}">{% trans 'People' %}</a>
+            <li><a href="{% url 'albums' %}">{% trans 'Albums' %}</a></li>
+            <li><a href="{% url 'locations' %}">{% trans 'Locations' %}</a></li>
+            <li><a href="{% url 'people' %}">{% trans 'People' %}</a></li>
             {% if perms.photos.add_photo %}
-                <a href="{% url 'upload' %}">{% trans 'Upload' %}</a>
+                <li><a href="{% url 'upload' %}">{% trans 'Upload' %}</a></li>
             {% endif %}
-            <a href="{% url 'search' %}">{% trans 'Search' %}</a>
-            <a href="{% url 'accounts:profile' %}">{% trans 'Profile' %}</a>
-            <a href="{% url 'accounts:logout' %}">{% trans 'Logout' %}</a>
+            <li><a href="{% url 'search' %}">{% trans 'Search' %}</a></li>
+            <li><a href="{% url 'accounts:profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="{% url 'accounts:logout' %}">{% trans 'Logout' %}</a></li>
         {% else %}
-            <a href="{% url 'accounts:login' %}">{% trans 'Login' %}</a>
-            <a href="{% url 'accounts:password_reset' %}">{% trans 'Forgot Password' %}</a>
-            <a href="{% url 'accounts:register' %}">{% trans 'Register' %}</a>
+            <li><a href="{% url 'accounts:login' %}">{% trans 'Login' %}</a></li>
+            <li><a href="{% url 'accounts:password_reset' %}">{% trans 'Forgot Password' %}</a></li>
+            <li><a href="{% url 'accounts:register' %}">{% trans 'Register' %}</a></li>
         {% endif %}
-    </div>
+        {% endspaceless %}
+    </ul>
 </div>
 
-<div id="toolbar">
+<div id="toolbar" class="header">
     <div class="left">
         {% if back_link %}
-            <a href="{{ back_link.url }}" data-navigate="up">&lt;&lt; {{ back_link.title }}</a>
+            <a href="{{ back_link.url }}" data-navigate="up">&larr;&nbsp;{{ back_link.title }}</a>
         {% endif %}
     </div>
-    <div class="pagination">
+    <div class="center">
         {% block pagination %}
             {% include '_paginator.html' %}
         {% endblock %}
     </div>
-    <div class="right">{% block actions %}{% endblock %}</div>
+    <div class="right">
+        {% block actions %}{% endblock %}
+    </div>
 </div>
 
 {% if messages %}
-    <div id="messages">
-        <ul>
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+    <ul id="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
 {% endif %}
 
 <div id="content">

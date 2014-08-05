@@ -6,22 +6,25 @@
 {% block header %}{{ album.name }}{% endblock %}
 
 {% block actions %}
-    <div class="actions album-actions">
+    <ul class="actions album-actions">
+        {% spaceless %}
         {% if perms.photos.change_album %}
-            <a href="{% url 'album_edit' album.pk %}" data-modal="form">{% trans 'Edit' %}</a>
-            <a href="{% url 'album_merge' album.pk %}" data-modal="form">{% trans 'Merge' %}</a>
+            <li><a href="{% url 'album_edit' album.pk %}" data-modal="form">{% trans 'Edit' %}</a></li>
+            <li><a href="{% url 'album_merge' album.pk %}" data-modal="form">{% trans 'Merge' %}</a></li>
         {% endif %}
         {% if perms.photos.delete_album %}
-            <a href="{% url 'album_delete' album.pk %}" data-modal="form">{% trans 'Delete' %}</a>
+            <li><a href="{% url 'album_delete' album.pk %}" data-modal="form">{% trans 'Delete' %}</a></li>
         {% endif %}
-        <a href="{% url 'album_download' album.pk %}">{% trans 'Download' %}</a>
-    </div>
+        <li><a href="{% url 'album_download' album.pk %}">{% trans 'Download' %}</a></li>
+        {% endspaceless %}
+    </ul>
 {% endblock %}
 
 {% block content %}
-    <div class="photo-list">
+{% spaceless %}
+    <ul class="photos">
         {% for photo in photo_list %}
-            <div class="thumb">
+            <li>
                 {% if location_pk %}
                     {% url 'photo' pk=photo.pk album_pk=album.pk location_pk=location_pk as photo_url %}
                 {% else %}
@@ -30,8 +33,8 @@
                 <a href="{{ photo_url }}">
                     <img src="{{ photo.file_thumb.url }}" alt="{{ photo.name }}">
                 </a>
-            </div>
+            </li>
         {% endfor %}
-        <div class="clear"></div>
-    </div>
+    </ul>
+{% endspaceless %}
 {% endblock %}

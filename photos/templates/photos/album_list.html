@@ -7,36 +7,39 @@
 {% block header %}{% trans 'Albums' %}{% endblock %}
 
 {% block actions %}
-    <span class="actions album-actions">
+    <ul class="actions album-actions">
+        {% spaceless %}
         {% if perms.photos.add_album %}
-            <a href="{% url 'album_create' %}" data-modal="form">{% trans 'Create Album' %}</a>
+            <li><a href="{% url 'album_create' %}" data-modal="form">{% trans 'Create Album' %}</a></li>
         {% endif %}
-    </span>
+        {% endspaceless %}
+    </ul>
 {% endblock %}
 
 {% block content %}
-    <div class="album-list">
+{% spaceless %}
+    <ul class="albums">
         {% for album in album_list %}
-            <div class="thumb">
+            <li>
                 <a href="{{ album.get_absolute_url }}">
                     {% if album.cover_photo %}
-                        <img src="{{ album.cover_photo.file_thumb.url|default:'' }}" alt="{{ album.name }}">
+                        <img src="{{ album.cover_photo.file_thumb.url }}" alt="{{ album.name }}">
                     {% else %}
                         <img src="{{ STATIC_URL }}/img/cover-blank.png">
                     {% endif %}
-                    <div class="name">{{ album.name|truncatechars:"45" }}</div>
+                    <span class="name">{{ album.name|truncatechars:"45" }}</span>
                     {% with count=album.photo_set.count %}
-                        <div class="count">
+                        <span class="count">
                             {% blocktrans count counter=count with total=count|intcomma %}
                                 {{ total }} photo
                             {% plural %}
                                 {{ total }} photos
                             {% endblocktrans %}
-                        </div>
+                        </span>
                     {% endwith %}
                 </a>
-            </div>
+            </li>
         {% endfor %}
-        <div class="clear"></div>
-    </div>
+    </ul>
+{% endspaceless %}
 {% endblock %}

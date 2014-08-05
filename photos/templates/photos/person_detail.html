@@ -6,14 +6,16 @@
 {% block header %}{{ person.name }}{% endblock %}
 
 {% block actions %}
-    <div class="actions person-actions">
+    <ul class="actions person-actions">
+        {% spaceless %}
         {% if perms.photos.change_person %}
-            <a href="{% url 'person_rename' person.pk %}" data-modal="form">{% trans 'Rename' %}</a>
+            <li><a href="{% url 'person_rename' person.pk %}" data-modal="form">{% trans 'Rename' %}</a></li>
         {% endif %}
         {% if perms.photos.delete_person %}
-            <a href="{% url 'person_delete' person.pk %}" data-modal="form">{% trans 'Delete' %}</a>
+            <li><a href="{% url 'person_delete' person.pk %}" data-modal="form">{% trans 'Delete' %}</a></li>
         {% endif %}
-    </div>
+        {% endspaceless %}
+    </ul>
 {% endblock %}
 
 {% block content %}
