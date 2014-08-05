@@ -20,27 +20,29 @@
 {% endblock %}
 
 {% block content %}
-    <div class="albums">
+{% spaceless %}
+    <ul class="albums">
         {% for album in album_list %}
-            <div class="thumb">
+            <li>
                 <a href="{% url 'album' pk=album.pk location_pk=location.pk %}">
                     {% if album.cover_photo %}
                         <img src="{{ album.cover_photo.file_thumb.url|default:"" }}" alt="{{ album.name }}">
                     {% else %}
                         <img src="{{ STATIC_URL }}/img/cover-blank.png">
                     {% endif %}
-                    <div class="name">{{ album.name|truncatechars:"45" }}</div>
+                    <span class="name">{{ album.name|truncatechars:"45" }}</span>
                     {% with count=album.photo_set.count %}
-                        <div class="count">
+                        <span class="count">
                             {% blocktrans count counter=count with total=count|intcomma %}
                                 {{ total }} photo
                             {% plural %}
                                 {{ total }} photos
                             {% endblocktrans %}
-                        </div>
+                        </span>
                     {% endwith %}
                 </a>
-            </div>
+            </li>
         {% endfor %}
-    </div>
+    </ul>
+{% endspaceless %}
 {% endblock %}

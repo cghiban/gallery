@@ -17,27 +17,29 @@
 {% endblock %}
 
 {% block content %}
-    <div class="albums">
+{% spaceless %}
+    <ul class="albums">
         {% for location in location_list %}
-            <div class="thumb">
+            <li class="thumb">
                 <a href="{{ location.get_absolute_url }}">
                     {% if location.cover_photo %}
                         <img src="{{ location.cover_photo.file_thumb.url|default:"" }}" alt="{{ location.name }}">
                     {% else %}
                         <img src="{{ STATIC_URL }}/img/cover-blank.png">
                     {% endif %}
-                    <div class="name">{{ location.name|truncatechars:"45" }}</div>
+                    <span class="name">{{ location.name|truncatechars:"45" }}</span>
                     {% with count=location.album_set.count %}
-                        <div class="count">
+                        <span class="count">
                             {% blocktrans count counter=count with total=count|intcomma %}
                                 {{ total }} album
                             {% plural %}
                                 {{ total }} albums
                             {% endblocktrans %}
-                        </div>
+                        </span>
                     {% endwith %}
                 </a>
-            </div>
+            </li>
         {% endfor %}
-    </div>
+    </ul>
+{% endspaceless %}
 {% endblock %}
