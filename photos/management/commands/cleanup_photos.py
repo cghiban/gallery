@@ -11,7 +11,7 @@ class Command(BaseCommand):
            'longer exist in the database.'
 
     def handle(self, *args, **options):
-        verbosity = options['verbosity']
+        verbosity = int(options['verbosity'])
         self.cleanup_model_files(Photo, 'file', 'photos', verbosity)
         self.cleanup_model_files(
             Thumbnail, 'file', 'photos/thumbnails', verbosity)
