@@ -5,13 +5,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.dates import MONTHS
 
 from utils.filestorage.uploads import get_unique_upload_path
-from utils.filestorage.signals import delete_files_on_delete, \
-    delete_files_on_change
 from photos.utils import generate_thumbnail
 
 MONTH_CHOICES = [(key, value) for key, value in MONTHS.items()]
 
-YEAR_CHOICES = [(year, year) for year in range(1950, (datetime.now().year + 1))]
+YEAR_CHOICES = [(year, year) for year in
+                range(1950, (datetime.now().year + 1))]
 
 
 class Location(models.Model):
@@ -215,11 +214,3 @@ class Thumbnail(models.Model):
         if self.photo and self.size:
             self.generate()
         super().save(force_insert, force_update, using, update_fields)
-
-# Delete photo files when Photo instance is deleted.
-models.signals.pre_delete.connect(delete_files_on_delete, sender=Photo)
-models.signals.pre_save.connect(delete_files_on_change, sender=Photo)
-
-# Delete thumbnail files when Thumbnail is deleted.
-models.signals.pre_delete.connect(delete_files_on_delete, sender=Thumbnail)
-models.signals.pre_save.connect(delete_files_on_change, sender=Thumbnail)
