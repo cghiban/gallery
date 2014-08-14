@@ -9,6 +9,7 @@ from django.core.files import File
 from django.contrib.auth.models import User
 
 from .models import Location, Person, Album, Photo, Thumbnail
+from photos.utils import split_extension, friendly_filename, file_allowed
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -271,3 +272,38 @@ class ModelTest(TestCase):
         self.album.month = None
         self.album.year = 2013
         self.assertEqual(self.album.get_date_display(), '2013')
+
+class UtilsTest(TestCase):
+
+    def test_split_extension(self):
+        scenarios = {
+            'awesome_filename.jpg': ['awesome_filename', 'jpg'],
+            'path/awesome_filename.GIF': ['path/awesome_filename', 'gif'],
+            'path/path/awesome_filename': ['path/path/awesome_filename', ''],
+        }
+        for input, output in scenarios.items():
+            name, ext = split_extension(input)
+            self.assertEqual(name, output[0])
+            self.assertEqual(ext, output[1])
+
+    def test_friendly_filename(self):
+        scenarios = {
+            'path/awesome_filename.jpg': 'awesome filename',
+            'path/awesome_[]#_filename.jpg': 'awesome filename',
+            'path/family photo # 1  .jpg': 'family photo 1',
+        }
+        for input, output in scenarios.items():
+            result = friendly_filename(input)
+            self.assertEqual(result, output)
+        self.assertEqual('A'*200, friendly_filename('A'*201))
+
+    def test_file_allowed(self):
+        scenarios = {
+            'path/awesome_filename.exe': False,
+            'path/awesome_filename.dll': False,
+        }
+        for ext in 'zip bmp raw jpg jpeg png gif tiff'.split():
+            scenarios['path/awesome_filename.{}'.format(ext)] = True
+        for input, output in scenarios.items():
+            result = file_allowed(input)
+            self.assertEqual(result, output)
