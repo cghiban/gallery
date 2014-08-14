@@ -20,6 +20,7 @@ perhaps someone else may find it useful for inspiration.
 
 2. Install the pre-requisites:
 
+        pip install https://www.djangoproject.com/download/1.7c2/tarball/
         pip install -r requirements.txt
 
 3. Copy the settings template to create your local settings:
