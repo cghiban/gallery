@@ -200,8 +200,7 @@ class Thumbnail(models.Model):
         """
         self.file = generate_thumbnail(self.photo.file, self.size)
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
+    def save(self, **kwargs):
         """
         If we have a photo and a size, generate a thumbnail regardless of
         whether we already have one generated. Maybe in the future this could
@@ -210,4 +209,4 @@ class Thumbnail(models.Model):
         """
         if self.photo and self.size:
             self.generate()
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(**kwargs)
