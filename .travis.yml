@@ -10,7 +10,7 @@ install:
 before_script:
   - "coverage erase"
 script:
-  - "coverage run --source='.' manage.py test"
+  - "coverage run --source='.' manage.py test --settings=gallery.settings_test"
 after_success:
   - "coverage report"
   - "coveralls"
