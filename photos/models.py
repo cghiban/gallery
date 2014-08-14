@@ -109,12 +109,9 @@ class Album(models.Model):
         - 'January'
         - '2014'
         """
-        output = []
-        if self.month:
-            output.append(str(self.get_month_display()))
-        if self.year:
-            output.append(str(self.get_year_display()))
-        return ' '.join(output)
+        month = self.get_month_display() or ''
+        year = self.get_year_display() or ''
+        return '{} {}'.format(month, year).strip()
 
 
 class Photo(models.Model):
