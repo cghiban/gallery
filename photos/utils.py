@@ -1,49 +1,90 @@
-import re
 import os
+import tempfile
+import re
 
-from PIL import Image as PILImage, ImageOps as PILImageOps
-from PIL.ExifTags import TAGS as PIL_TAGS
-
+from PIL import Image, ImageOps
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
-def split_extension(filename):
-    """
-    Given a filename, splits out the extension and returns just the filename
-    and then just the extension.
-    Examples:
-    'awesome_filename.jpg' => ['awesome_filename', 'jpg']
-    'path/awesome_filename.jpg' => ['path/awesome_filename', 'jpg']
-    """
-    fname, ext = os.path.splitext(filename)
-    if ext.startswith('.'):
-        ext = ext[1:]
-    return fname, ext.lower()
+class ImageHandler:
+    def __init__(self, file_field):
+        self.file_field = file_field
+        self.name = file_field.name
+        self.storage = file_field.storage
+        self.pil = self._get_pil_image()
+        self.temp = self._get_temp_file()
 
+    def _get_pil_image(self):
+        """
+        Generate and return a PIL Image instance from the given file_field.
+        """
+        return Image.open(self.storage.open(self.file_field))
 
-def friendly_filename(filename):
-    """
-    Creates a 'friendly' filename based on the given filename. The
-    transformation process is as follows:
-    - Get everything after the last slash
-    - Remove the extension
-    - Convert slashes, underscores, bracket, pound to space
-    - Convert consecutive spaces to just one space
-    Examples:
-    'awesome_filename.jpg' => 'awesome filename'
-    'path/here/awesome_filename.jpg' => 'awesome filename'
-    'my photo #  03.jpg' => 'my photo 03'
-    'messy__photo name  [3] 04.jpg' => 'messy photo name 3 04'
-    """
-    # get everything after the last slash
-    filename = filename.split('\\')[-1].split('/')[-1]
-    # remove extension
-    filename, ext = split_extension(filename)
-    # convert slashes\underscores\bracket\pound to space
-    filename = re.sub('[/\\_\[\]#]', ' ', filename)
-    # convert two or more spaces to just one space
-    filename = re.sub('\s{2,}', ' ', filename)
-    return filename.strip()[:200]
+    def _get_temp_file(self):
+        """
+        Generate and return a temporary file instance with the same extension
+        as self.file_field.
+        """
+        filename, ext = split_extension(self.file_field.name)
+        return tempfile.NamedTemporaryFile(suffix='.%s' % ext)
+
+    def parse_size(self, size):
+        """
+        Converts a size specified as '800x600-fit' to a tuple like (800, 600)
+        and a string 'fit'.
+        """
+        error_msg = 'Size must be specified as 000x000-method such as 800x600-fit.'
+
+        assert len(size.split('-')) == 2, error_msg
+        assert len(size.split('-')[0].split('x')) == 2, error_msg
+
+        try:
+            width, height, method = size.replace('-', 'x').split('x')
+            width, height = int(width), int(height)
+        except ValueError:
+            raise AssertionError(error_msg)
+
+        assert width > 0 and height > 0, 'Height and width must both be greater than 0.'
+        assert method in ('fit', 'thumb'), "Method must be 'fit' or 'thumb'."
+
+        return (width, height), method
+
+    def resize(self, size):
+        """
+        Create a thumbnail with the given size/method, save it to the temp
+        file, and return the data for it.
+        """
+        size, method = self.parse_size(size)
+
+        if method == 'thumb':
+            # Image.thumbnail resizes the image in place
+            self.pil.thumbnail(size, Image.ANTIALIAS)
+        if method == 'fit':
+            # PILImageOps.fit returns an Image instance
+            self.pil = ImageOps.fit(self.pil, size, method=Image.ANTIALIAS)
+        self.pil.save(self.temp, self.pil.format)
+        self.temp.seek(0)
+        return self.temp.read()
+
+    def rotate(self, degrees):
+        """
+        Rotate the image the given degrees, save it to the temp file, and
+        return the data for it.
+        """
+        self.pil = self.pil.rotate(degrees)
+        self.pil.save(self.temp, self.pil.format)
+        self.temp.seek(0)
+        return self.temp.read()
+
+    def save_to_storage(self):
+        """
+        Save the current file to the field's storage. This will overwrite the
+        existing file (if it exists). Actually does a delete then save, since
+        Django storage will not overwrite the file.
+        """
+        self.storage.delete(self.file_field.name)
+        self.storage.save(self.file_field.name, self.temp)
 
 
 def file_allowed(filename):
@@ -55,77 +96,47 @@ def file_allowed(filename):
     return (ext in settings.ALLOWED_EXTENSIONS)
 
 
-def parse_size(size):
+def split_extension(filename):
     """
-    Converts a size specified as '800x600-fit' to a list like [800, 600]
-    and a string 'fit'. The strings in the error messages are really for the
-    developer so they don't need to be translated.
+    Given a filename, splits out the extension and returns just the filename
+    and then just the extension.
     """
-    first_split = size.split('-')
-    if len(first_split) != 2:
-        raise AttributeError(
-            'Size must be specified as 000x000-method such as 800x600-fit.')
-    size, method = first_split
-    if method not in ('fit', 'thumb'):
-        raise AttributeError(
-            'The method must either be "fit" or "thumb", not "%s".' % method)
-    try:
-        size_ints = [int(x) for x in size.split('x')]
-    except ValueError:
-        raise AttributeError(
-            'Size must be specified as 000x000-method such as 800x600-fit.')
-    if len(size_ints) != 2:
-        raise AttributeError(
-            'Size must be specified as 000x000-method such as 800x600-fit.')
-    if size_ints[0] <= 0 or size_ints[1] <= 0:
-        raise AttributeError(
-            'Height and width for size must both be greater than 0.')
-    return size_ints, method
+    basename, ext = os.path.splitext(filename)
+    if ext.startswith('.'):
+        ext = ext[1:]
+    return basename, ext.lower()
 
 
-def get_thumbnail_path(filename, key):
+def friendly_filename(filename):
     """
-    Gets the upload path for a thumbnail file.
-    An example path for an image in the 'photos' application looks like this:
-        photos/bc31d8ba49c149598f83cf6c64eed500.jpg
-        photos/thumbnails/bc31d8ba49c149598f83cf6c64eed500-800x600-thumb.jpg
-        photos/thumbnails/bc31d8ba49c149598f83cf6c64eed500-200x150-fit.jpg
+    Creates a 'friendly' filename based on the given filename:
+    - Get everything after the last slash
+    - Remove the extension
+    - Convert slashes, underscores, bracket, pound to space
+    - Convert consecutive spaces to just one space
     """
-    filename, extension = os.path.splitext(filename)
-    path, filename = os.path.split(filename)
-    new_filename = '%s-%s%s' % (filename, key, extension)
-    # Create the full thumbnail path if necessary.
-    os.makedirs(os.path.join(
-        settings.MEDIA_ROOT, path, 'thumbnails'), 0o775, exist_ok=True)
-    return os.path.join(path, 'thumbnails', new_filename)
+    filename = filename.split('\\')[-1].split('/')[-1]
+    filename, ext = split_extension(filename)
+    filename = re.sub('[/\\_\[\]#]', ' ', filename)
+    filename = re.sub('\s{2,}', ' ', filename)
+    return filename.strip()[:200]
 
 
-def generate_thumbnail(image_field, size):
+def rotate_image(file_field):
     """
-    Generate a thumbnail image for the given image_field. Size is required and
-    should be passed as a string like '800x600-fit'. The file is always
-    generated regardless of whether it exists. This function will use the
-    same storage as the image_field that is passed in.
+    Rotate (clockwise) the file associated with the given file_field.
+    Return True if successful.
     """
-    size_ints, method = parse_size(size)
-    thumbnail_path = get_thumbnail_path(image_field.name, size)
-    pimage = PILImage.open(image_field.path)
-    if method == 'fit':
-        pimage = PILImageOps.fit(
-            pimage,
-            size_ints,
-            method=PILImage.ANTIALIAS)
-    elif method == 'thumb':
-        pimage.thumbnail(size_ints, PILImage.ANTIALIAS)
-    pimage.save(image_field.storage.path(thumbnail_path))
-    return thumbnail_path
-
-
-def rotate_image(image_field):
-    """
-    Rotate (clockwise) the file associated with the given image_field.
-    """
-    pimage = PILImage.open(image_field.path)
-    pimage = pimage.rotate(270)
-    pimage.save(image_field.path)
+    handler = ImageHandler(file_field)
+    handler.rotate(270)
+    handler.save_to_storage()
     return True
+
+
+def generate_thumbnail(file_field, size):
+    """
+    Generate a thumbnail from the given file_field and size.
+    Returns a SimpleUploadedFile with the same name as the file_field.
+    """
+    handler = ImageHandler(file_field)
+    return SimpleUploadedFile(handler.name, handler.resize(size))

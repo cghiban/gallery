@@ -150,12 +150,10 @@ class Photo(models.Model):
         Generate and return a thumbnail with the given size. Only do this once
         in this instance to save on hits to the Thumnail model.
         """
-        prop_name = '_thumbnail_%s' % size.replace('-', '_')
+        prop_name = '_thumb_%s' % size.replace('-', '_')
+        instance, created = self.thumbnail_set.get_or_create(size=size)
         if not hasattr(self, prop_name):
-            setattr(
-                self,
-                prop_name,
-                self.thumbnail_set.get_or_create(size=size)[0].file)
+            setattr(self, prop_name, instance.file)
         return getattr(self, prop_name)
 
     @property
@@ -180,7 +178,7 @@ class Thumbnail(models.Model):
     """
 
     size = models.CharField(_('size'), max_length=20, db_index=True)
-    file = models.ImageField(_('file'))
+    file = models.ImageField(_('file'), upload_to=get_unique_upload_path)
     photo = models.ForeignKey(Photo, verbose_name=_('photo'))
 
     class Meta:
@@ -192,6 +190,14 @@ class Thumbnail(models.Model):
     def __str__(self):
         return '%s (%s)' % (self.photo, self.size)
 
+    def save(self, **kwargs):
+        """
+        If we have a photo and a size, generate a thumbnail before saving.
+        """
+        if self.photo and self.size:
+            self.generate()
+        super().save(**kwargs)
+
     def generate(self):
         """
         Generate the thumbnail. This happens regardless of whether we already
@@ -199,14 +205,3 @@ class Thumbnail(models.Model):
         keeping the same filename).
         """
         self.file = generate_thumbnail(self.photo.file, self.size)
-
-    def save(self, **kwargs):
-        """
-        If we have a photo and a size, generate a thumbnail regardless of
-        whether we already have one generated. Maybe in the future this could
-        check to make sure the thumbnail already exists, but that's
-        not needed now.
-        """
-        if self.photo and self.size:
-            self.generate()
-        super().save(**kwargs)
