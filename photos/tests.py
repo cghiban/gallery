@@ -1,4 +1,6 @@
+from io import StringIO
 import json
+import os
 import shutil
 import tempfile
 
@@ -7,8 +9,10 @@ from django.test import TestCase, Client, override_settings
 from django.core.urlresolvers import reverse
 from django.core.files import File
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from .models import Location, Person, Album, Photo, Thumbnail
+
 from photos.utils import friendly_filename
 
 
@@ -259,7 +263,7 @@ class ModelTest(TestCase):
         self.assertTrue(isinstance(self.photo.file_medium, ImageFieldFile))
         self.assertTrue(isinstance(self.photo.file_thumb, ImageFieldFile))
         # and also test the sizes of the thumbnail
-        self.assertEqual(self.photo.file_medium.height, 768)
+        self.assertEqual(self.photo.file_medium.height, 630)
         self.assertEqual(self.photo.file_medium.width, 1024)
         self.assertEqual(self.photo.file_thumb.height, 200)
         self.assertEqual(self.photo.file_thumb.width, 200)
@@ -293,3 +297,39 @@ class UtilsTest(TestCase):
             result = friendly_filename(input)
             self.assertEqual(result, output)
         self.assertEqual('A' * 200, friendly_filename('A' * 201))
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class TestCleanupPhotosCommand(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT)
+
+    def setUp(self):
+        """
+        Create some photos and thumbnails for our tests.
+        """
+        self.album = Album.objects.create(name='album1')
+        for x in range(1, 5):
+            p = self.album.photo_set.create(name='photo%s' % x)
+            p.file = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+            p.save()
+            p.thumbnail('200x200-fit')
+        for x in range(1, 4):
+            p = Photo.objects.get(pk=x)
+            p.delete()
+
+    def test_command(self):
+        """
+        Test that the management command works properly.
+        """
+        photo_dir = os.path.join(MEDIA_ROOT, 'photos', 'photo')
+        thumb_dir = os.path.join(MEDIA_ROOT, 'photos', 'thumbnail')
+        # When the test starts there should be 4 files in each directory
+        self.assertEqual(len(os.listdir(photo_dir)), 4)
+        self.assertEqual(len(os.listdir(thumb_dir)), 4)
+        # Then we call the command to clean up
+        call_command('cleanup_photos', stdout=StringIO(), verbosity=2)
+        # And it should delete all but one of the files
+        self.assertEqual(len(os.listdir(photo_dir)), 1)
+        self.assertEqual(len(os.listdir(thumb_dir)), 1)
