@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 
 from .models import Location, Person, Album, Photo, Thumbnail
 from photos.utils import friendly_filename
-from utils.uploads import file_allowed, split_extension
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -279,8 +278,8 @@ class ModelTest(TestCase):
         self.album.year = 2013
         self.assertEqual(self.album.get_date_display(), '2013')
 
-class UtilsTest(TestCase):
 
+class UtilsTest(TestCase):
     def test_friendly_filename(self):
         """
         Test that friendly_filename method works properly.
@@ -293,4 +292,4 @@ class UtilsTest(TestCase):
         for input, output in scenarios.items():
             result = friendly_filename(input)
             self.assertEqual(result, output)
-        self.assertEqual('A'*200, friendly_filename('A'*201))
+        self.assertEqual('A' * 200, friendly_filename('A' * 201))
