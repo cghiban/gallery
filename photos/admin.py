@@ -13,7 +13,7 @@ class AlbumAdmin(admin.ModelAdmin):
 
 class ThumbnailInline(admin.TabularInline):
     model = Thumbnail
-    readonly_fields = ['file', ]
+    readonly_fields = ['size', 'file', ]
 
 
 class PhotoAdmin(admin.ModelAdmin):
