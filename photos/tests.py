@@ -276,17 +276,6 @@ class ModelTest(TestCase):
 
 class UtilsTest(TestCase):
 
-    def test_split_extension(self):
-        scenarios = {
-            'awesome_filename.jpg': ['awesome_filename', 'jpg'],
-            'path/awesome_filename.GIF': ['path/awesome_filename', 'gif'],
-            'path/path/awesome_filename': ['path/path/awesome_filename', ''],
-        }
-        for input, output in scenarios.items():
-            name, ext = split_extension(input)
-            self.assertEqual(name, output[0])
-            self.assertEqual(ext, output[1])
-
     def test_friendly_filename(self):
         scenarios = {
             'path/awesome_filename.jpg': 'awesome filename',
@@ -297,14 +286,3 @@ class UtilsTest(TestCase):
             result = friendly_filename(input)
             self.assertEqual(result, output)
         self.assertEqual('A'*200, friendly_filename('A'*201))
-
-    def test_file_allowed(self):
-        scenarios = {
-            'path/awesome_filename.exe': False,
-            'path/awesome_filename.dll': False,
-        }
-        for ext in 'zip bmp raw jpg jpeg png gif tiff'.split():
-            scenarios['path/awesome_filename.{}'.format(ext)] = True
-        for input, output in scenarios.items():
-            result = file_allowed(input)
-            self.assertEqual(result, output)
