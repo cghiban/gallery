@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """
-        Removes all photos on that do not exist for Photos and for Thumbnails.
+        Removes all photos that do not exist for Photos and for Thumbnails.
         """
         verbosity = int(options['verbosity'])
         self.cleanup_files(Photo, 'file', 'photos/photo', verbosity)
