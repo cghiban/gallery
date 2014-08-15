@@ -11,35 +11,64 @@ class Command(BaseCommand):
            'longer exist in the database.'
 
     def handle(self, *args, **options):
+        """
+        Removes all files on the filesystem that do not exist in the given
+        model_class and field anymore. This assumes that the only things in the
+        given dirname are files that belong to the given model_class and field.
+        If that assumption is not correct then do not use this method or you will
+        permanently lose data!
+        """
         verbosity = int(options['verbosity'])
-        self.cleanup_model_files(Photo, 'file', 'photos', verbosity)
-        self.cleanup_model_files(
-            Thumbnail, 'file', 'photos/thumbnails', verbosity)
+        self.cleanup_files(Photo, 'file', 'photos/photo', verbosity)
+        self.cleanup_files(Thumbnail, 'file', 'photos/thumbnail', verbosity)
         self.stdout.write('Successfully cleaned up.')
 
-    def cleanup_model_files(self, model_class, field, dir, verbosity):
+    def cleanup_files(self, model_class, field, dirname, verbosity):
+        """
+        Removes all files on the filesystem that do not exist in the given
+        model_class and field anymore. This assumes that the only things in the
+        given dirname are files that belong to the given model_class and field.
+        If that assumption is not correct then do not use this method or you will
+        permanently lose data!
+        """
+        storage = model_class._meta.get_field(field).storage
         model_files = self.get_model_files(model_class, field)
-        filesystem_files = self.get_filesystem_files(dir)
-        file_list = set(filesystem_files) - set(model_files)
-        data = {'count': len(file_list), 'model': model_class._meta.model_name}
-        self.stdout.write('Deleting {count} {model} files...'.format(**data))
-        self.delete_files(file_list, verbosity)
+        storage_files = self.get_storage_files(storage, dirname)
+        files_to_delete = set(storage_files) - set(model_files)
+        data = {
+            'count': len(files_to_delete),
+            'model': model_class._meta.model_name,
+            'field': field
+        }
+        self.stdout.write('Deleting {count} files from {model}.{field}...'.format(**data))
+        self.delete_files(storage, files_to_delete, verbosity)
 
-    def delete_files(self, file_list, verbosity):
+    def delete_files(self, storage, file_list, verbosity):
+        """
+        Deletes all files in file_list using storage. There's no turning back
+        from this, so be sure that you want to delete all these files.
+        """
         for filename in file_list:
             if verbosity > 1:
                 self.stdout.write(filename)
-            os.remove(filename)
+            storage.delete(filename)
 
     def get_model_files(self, model_class, field):
+        """
+        Return a generator containing all the filenames in the given
+        model_class and field.
+        """
         for filename in model_class.objects.values_list(field, flat=True):
-            yield os.path.join(settings.MEDIA_ROOT, filename)
+            yield filename
 
-    def get_filesystem_files(self, dir):
-        media_root = settings.MEDIA_ROOT
-        full_dir = os.path.join(media_root, dir)
-        for filename in os.listdir(full_dir):
-            full_path = os.path.join(full_dir, filename)
-            if not os.path.isfile(full_path):
-                continue
-            yield full_path
+    def get_storage_files(self, storage, dirname):
+        """
+        Return a generator containing all the filenames in the given dirname
+        using the given storage instance.
+        """
+        try:
+            directories, files = storage.listdir(dirname)
+        except FileNotFoundError:
+            return []
+        for filename in files:
+            yield '{}/{}'.format(dirname, filename)
