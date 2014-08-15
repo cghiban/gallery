@@ -259,6 +259,11 @@ class ModelTest(TestCase):
         self.assertTrue(isinstance(thumbnail, ImageFieldFile))
         self.assertTrue(isinstance(self.photo.file_medium, ImageFieldFile))
         self.assertTrue(isinstance(self.photo.file_thumb, ImageFieldFile))
+        # and also test the sizes of the thumbnail
+        self.assertEqual(self.photo.file_medium.height, 768)
+        self.assertEqual(self.photo.file_medium.width, 1024)
+        self.assertEqual(self.photo.file_thumb.height, 200)
+        self.assertEqual(self.photo.file_thumb.width, 200)
 
     def test_album_date_display(self):
         """
