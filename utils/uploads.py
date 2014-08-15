@@ -35,5 +35,5 @@ def get_unique_upload_path(instance, filename):
     unique = str(uuid.uuid4()).replace('-', '')
     new_filename = '{}.{}'.format(unique, ext)
     app_label = str(instance._meta.app_label.lower())
-    model_name = str(instance._meta.model_name.lower)
+    model_name = str(instance._meta.model_name.lower())
     return '/'.join([app_label, model_name, new_filename])
