@@ -9,7 +9,8 @@ from django.core.files import File
 from django.contrib.auth.models import User
 
 from .models import Location, Person, Album, Photo, Thumbnail
-from photos.utils import split_extension, friendly_filename, file_allowed
+from photos.utils import friendly_filename
+from utils.uploads import file_allowed, split_extension
 
 
 MEDIA_ROOT = tempfile.mkdtemp()

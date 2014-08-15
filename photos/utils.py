@@ -1,10 +1,11 @@
-import os
 import tempfile
 import re
 
 from PIL import Image, ImageOps
-from django.conf import settings
+
 from django.core.files.uploadedfile import SimpleUploadedFile
+
+from utils.uploads import split_extension
 
 
 class ImageHandler:
@@ -85,26 +86,6 @@ class ImageHandler:
         """
         self.storage.delete(self.file_field.name)
         self.storage.save(self.file_field.name, self.temp)
-
-
-def file_allowed(filename):
-    """
-    Determines whether the given filename is allowed to be uploaded. This is
-    based on the extension and the ALLOWED_EXTENSIONS setting.
-    """
-    filename, ext = split_extension(filename)
-    return (ext in settings.ALLOWED_EXTENSIONS)
-
-
-def split_extension(filename):
-    """
-    Given a filename, splits out the extension and returns just the filename
-    and then just the extension.
-    """
-    basename, ext = os.path.splitext(filename)
-    if ext.startswith('.'):
-        ext = ext[1:]
-    return basename, ext.lower()
 
 
 def friendly_filename(filename):
