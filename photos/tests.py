@@ -282,6 +282,9 @@ class ModelTest(TestCase):
 class UtilsTest(TestCase):
 
     def test_friendly_filename(self):
+        """
+        Test that friendly_filename method works properly.
+        """
         scenarios = {
             'path/awesome_filename.jpg': 'awesome filename',
             'path/awesome_[]#_filename.jpg': 'awesome filename',
