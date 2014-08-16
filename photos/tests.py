@@ -25,7 +25,16 @@ class SuperuserTest(TestCase):
             url, form_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         return json.loads(response.content.decode("utf-8"))
 
-    def value_in_result(self, url, value, data):
+    def ajax_get(self, url):
+        response = self.client.get(
+            url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        return json.loads(response.content.decode("utf-8"))
+
+    def json_get_value(self, url, value):
+        result = self.ajax_get(url)
+        self.assertTrue(value in result)
+
+    def json_post_value(self, url, value, data):
         result = self.ajax_post(url, data)
         self.assertTrue(value in result)
 
@@ -52,10 +61,10 @@ class LocationViews(SuperuserTest):
         """
         # invalid location, display form again
         data = {'name': ''}
-        self.value_in_result(reverse('location_create'), 'html', data)
+        self.json_post_value(reverse('location_create'), 'html', data)
         # valid location, redirect (via ajax)
         data = {'name': 'location1'}
-        self.value_in_result(reverse('location_create'), 'url', data)
+        self.json_post_value(reverse('location_create'), 'url', data)
 
     def test_detail(self):
         """
@@ -77,19 +86,21 @@ class LocationViews(SuperuserTest):
         self.assertEqual(Location.objects.get(pk=1).name, 'location1')
         # invalid location, display form again
         data = {'name': ''}
-        self.value_in_result(
+        self.json_post_value(
             reverse('location_rename', kwargs=dict(pk=1)), 'html', data)
         # valid location, redirect (via ajax)
         data = {'name': 'location2'}
-        self.value_in_result(
+        self.json_post_value(
             reverse('location_rename', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Location.objects.get(pk=1).name, 'location2')
 
     def test_delete(self):
         Location.objects.create(name='location1')
+        self.json_get_value(
+            reverse('location_delete', kwargs=dict(pk=1)), 'html')
         self.assertEqual(Location.objects.count(), 1)
         data = {'submit': True}
-        self.value_in_result(
+        self.json_post_value(
             reverse('location_delete', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Location.objects.count(), 0)
 
@@ -109,10 +120,10 @@ class PersonViews(SuperuserTest):
         """
         # invalid person, display form again
         data = {'name': ''}
-        self.value_in_result(reverse('person_create'), 'html', data)
+        self.json_post_value(reverse('person_create'), 'html', data)
         # valid person, redirect (via ajax)
         data = {'name': 'person1'}
-        self.value_in_result(reverse('person_create'), 'url', data)
+        self.json_post_value(reverse('person_create'), 'url', data)
 
     def test_detail(self):
         """
@@ -134,11 +145,11 @@ class PersonViews(SuperuserTest):
         self.assertEqual(Person.objects.get(pk=1).name, 'person1')
         # invalid person, display form again
         data = {'name': ''}
-        self.value_in_result(
+        self.json_post_value(
             reverse('person_rename', kwargs=dict(pk=1)), 'html', data)
         # valid person, redirect (via ajax)
         data = {'name': 'person2'}
-        self.value_in_result(
+        self.json_post_value(
             reverse('person_rename', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Person.objects.get(pk=1).name, 'person2')
 
@@ -146,7 +157,7 @@ class PersonViews(SuperuserTest):
         Person.objects.create(name='person1')
         self.assertEqual(Person.objects.count(), 1)
         data = {'submit': True}
-        self.value_in_result(
+        self.json_post_value(
             reverse('person_delete', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Person.objects.count(), 0)
 
@@ -166,10 +177,10 @@ class AlbumViews(SuperuserTest):
         """
         # invalid album, display form again
         data = {'name': ''}
-        self.value_in_result(reverse('album_create'), 'html', data)
+        self.json_post_value(reverse('album_create'), 'html', data)
         # valid album, redirect (via ajax)
         data = {'name': 'album1'}
-        self.value_in_result(reverse('album_create'), 'url', data)
+        self.json_post_value(reverse('album_create'), 'url', data)
 
     def test_detail(self):
         """
@@ -183,6 +194,21 @@ class AlbumViews(SuperuserTest):
         self.assertTrue('back_link' in response.context)
         self.assertTrue('photo_list' in response.context)
 
+    def test_detail_location(self):
+        """
+        Test that the album detail view works properly from location.
+        """
+        loc = Location.objects.create(name='location1')
+        loc.album_set.create(name='album1')
+        kwargs_dict = {'pk': 1, 'location_pk': 1}
+        response = self.client.get(reverse('album', kwargs=kwargs_dict))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('album' in response.context)
+        self.assertTrue('paginator' in response.context)
+        self.assertTrue('back_link' in response.context)
+        self.assertTrue('photo_list' in response.context)
+        self.assertEqual(response.context['back_link']['title'], 'location1')
+
     def test_edit(self):
         """
         Test that the album edit view works properly.
@@ -191,21 +217,132 @@ class AlbumViews(SuperuserTest):
         self.assertEqual(Album.objects.get(pk=1).name, 'album1')
         # invalid album, display form again
         data = {'name': ''}
-        self.value_in_result(
+        self.json_post_value(
             reverse('album_edit', kwargs=dict(pk=1)), 'html', data)
         # valid album, redirect (via ajax)
         data = {'name': 'album2'}
-        self.value_in_result(
+        self.json_post_value(
             reverse('album_edit', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Album.objects.get(pk=1).name, 'album2')
 
     def test_delete(self):
         Album.objects.create(name='album1')
         self.assertEqual(Album.objects.count(), 1)
+        self.json_get_value(
+            reverse('album_delete', kwargs=dict(pk=1)), 'html')
         data = {'submit': True}
-        self.value_in_result(
+        self.json_post_value(
             reverse('album_delete', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Album.objects.count(), 0)
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class PhotoViews(SuperuserTest):
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT)
+
+    def create_data(self):
+        imgfile = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+        self.person = Person.objects.create(name='person1')
+        self.location = Location.objects.create(name='location1')
+        self.album = self.location.album_set.create(name='album1')
+        self.photo = self.album.photo_set.create(name='photo1', file=imgfile)
+        self.photo.people.add(self.person)
+        self.thumbnail = Thumbnail.objects.create(
+            photo=self.photo, size='200x200-fit')
+
+    def get_photo_detail(self, kwargs):
+        response = self.client.get(reverse('photo', kwargs=kwargs))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('photo' in response.context)
+        self.assertTrue('paginator' in response.context)
+        self.assertTrue('back_link' in response.context)
+        return response
+
+    def test_detail(self):
+        """
+        Test that the photo detail view works properly.
+        """
+        self.create_data()
+        kwargs_dict = {'pk': 1}
+        response = self.get_photo_detail(kwargs_dict)
+
+    def test_detail_pagination(self):
+        """
+        Test that the photo detail view works properly with pagination.
+        """
+        self.create_data()
+        imgfile = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+        self.album.photo_set.create(name='photo2', file=imgfile)
+        self.album.photo_set.create(name='photo3', file=imgfile)
+        kwargs_dict = {'pk': 2}
+        response = self.get_photo_detail(kwargs_dict)
+        self.assertEqual(response.context['paginator']['has_next'], True)
+        self.assertEqual(response.context['paginator']['has_previous'], True)
+        self.assertIsNotNone(response.context['paginator']['previous_url'])
+        self.assertIsNotNone(response.context['paginator']['next_url'])
+
+    def test_detail_query(self):
+        """
+        Test that the photo detail view works properly from search.
+        """
+        self.create_data()
+        kwargs_dict = {'pk': 1, 'query': 'q=photo'}
+        response = self.get_photo_detail(kwargs_dict)
+        self.assertEqual(response.context['back_link']['title'], 'Results')
+
+    def test_detail_person(self):
+        """
+        Test that the photo detail view works properly from person page.
+        """
+        self.create_data()
+        kwargs_dict = {'pk': 1, 'person_pk': 1}
+        response = self.get_photo_detail(kwargs_dict)
+        self.assertEqual(response.context['back_link']['title'], 'person1')
+
+    def test_detail_location(self):
+        """
+        Test that the photo detail view works properly from location/album.
+        """
+        self.create_data()
+        kwargs_dict = {'pk': 1, 'location_pk': 1, 'album_pk': 1}
+        response = self.get_photo_detail(kwargs_dict)
+        self.assertEqual(response.context['back_link']['title'], 'album1')
+
+    def test_rotate(self):
+        """
+        Test that the photo rotate view works properly.
+        """
+        self.create_data()
+        self.json_post_value(
+            reverse('photo_rotate', kwargs=dict(pk=1)), 'url', {'submit': 1})
+
+    def test_rename(self):
+        """
+        Test that the photo rename view works properly.
+        """
+        self.create_data()
+        self.assertEqual(Photo.objects.get(pk=1).name, 'photo1')
+        # invalid photo, redisplay
+        data = {'name': 'dd'*500} # name is too long
+        self.json_post_value(
+            reverse('photo_rename', kwargs=dict(pk=1)), 'html', data)
+        # valid photo, redirect
+        data = {'name': 'new-name'}
+        self.json_post_value(
+            reverse('photo_rename', kwargs=dict(pk=1)), 'url', data)
+        self.assertEqual(Photo.objects.get(pk=1).name, 'new-name')
+
+    def test_delete(self):
+        self.create_data()
+        self.assertEqual(Photo.objects.count(), 1)
+        self.json_get_value(
+            reverse('photo_delete', kwargs=dict(pk=1)), 'html')
+        data = {'submit': True}
+        self.json_post_value(
+            reverse('photo_delete', kwargs=dict(pk=1)), 'url', data)
+        self.assertEqual(Photo.objects.count(), 0)
 
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
@@ -215,13 +352,12 @@ class ModelTest(TestCase):
         shutil.rmtree(MEDIA_ROOT)
 
     def setUp(self):
+        imgfile = File(open('photos/fixtures/milkyway.jpg', 'rb'))
         self.person = Person.objects.create(name='person1')
         self.location = Location.objects.create(name='location1')
         self.album = self.location.album_set.create(name='album1')
-        self.photo = self.album.photo_set.create(name='photo1')
+        self.photo = self.album.photo_set.create(name='photo1', file=imgfile)
         self.photo.people.add(self.person)
-        self.photo.file = File(open('photos/fixtures/milkyway.jpg', 'rb'))
-        self.photo.save()
         self.thumbnail = Thumbnail.objects.create(
             photo=self.photo, size='200x200-fit')
 
