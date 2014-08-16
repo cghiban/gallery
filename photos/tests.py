@@ -25,6 +25,10 @@ class SuperuserTest(TestCase):
             url, form_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         return json.loads(response.content.decode("utf-8"))
 
+    def value_in_result(self, url, value, data):
+        result = self.ajax_post(url, data)
+        self.assertTrue(value in result)
+
     def setUp(self):
         # create a superuser so that we can test create/update
         self.user = User.objects.create_superuser(
@@ -48,12 +52,10 @@ class LocationViews(SuperuserTest):
         """
         # invalid location, display form again
         data = {'name': ''}
-        result = self.ajax_post(reverse('location_create'), data)
-        self.assertTrue('html' in result)
+        self.value_in_result(reverse('location_create'), 'html', data)
         # valid location, redirect (via ajax)
         data = {'name': 'location1'}
-        result = self.ajax_post(reverse('location_create'), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(reverse('location_create'), 'url', data)
 
     def test_detail(self):
         """
@@ -75,23 +77,20 @@ class LocationViews(SuperuserTest):
         self.assertEqual(Location.objects.get(pk=1).name, 'location1')
         # invalid location, display form again
         data = {'name': ''}
-        result = self.ajax_post(
-            reverse('location_rename', kwargs=dict(pk=1)), data)
-        self.assertTrue('html' in result)
+        self.value_in_result(
+            reverse('location_rename', kwargs=dict(pk=1)), 'html', data)
         # valid location, redirect (via ajax)
         data = {'name': 'location2'}
-        result = self.ajax_post(
-            reverse('location_rename', kwargs=dict(pk=1)), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(
+            reverse('location_rename', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Location.objects.get(pk=1).name, 'location2')
 
     def test_delete(self):
         Location.objects.create(name='location1')
         self.assertEqual(Location.objects.count(), 1)
         data = {'submit': True}
-        result = self.ajax_post(
-            reverse('location_delete', kwargs=dict(pk=1)), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(
+            reverse('location_delete', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Location.objects.count(), 0)
 
 
@@ -110,12 +109,10 @@ class PersonViews(SuperuserTest):
         """
         # invalid person, display form again
         data = {'name': ''}
-        result = self.ajax_post(reverse('person_create'), data)
-        self.assertTrue('html' in result)
+        self.value_in_result(reverse('person_create'), 'html', data)
         # valid person, redirect (via ajax)
         data = {'name': 'person1'}
-        result = self.ajax_post(reverse('person_create'), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(reverse('person_create'), 'url', data)
 
     def test_detail(self):
         """
@@ -137,23 +134,20 @@ class PersonViews(SuperuserTest):
         self.assertEqual(Person.objects.get(pk=1).name, 'person1')
         # invalid person, display form again
         data = {'name': ''}
-        result = self.ajax_post(
-            reverse('person_rename', kwargs=dict(pk=1)), data)
-        self.assertTrue('html' in result)
+        self.value_in_result(
+            reverse('person_rename', kwargs=dict(pk=1)), 'html', data)
         # valid person, redirect (via ajax)
         data = {'name': 'person2'}
-        result = self.ajax_post(
-            reverse('person_rename', kwargs=dict(pk=1)), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(
+            reverse('person_rename', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Person.objects.get(pk=1).name, 'person2')
 
     def test_delete(self):
         Person.objects.create(name='person1')
         self.assertEqual(Person.objects.count(), 1)
         data = {'submit': True}
-        result = self.ajax_post(
-            reverse('person_delete', kwargs=dict(pk=1)), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(
+            reverse('person_delete', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Person.objects.count(), 0)
 
 
@@ -172,12 +166,10 @@ class AlbumViews(SuperuserTest):
         """
         # invalid album, display form again
         data = {'name': ''}
-        result = self.ajax_post(reverse('album_create'), data)
-        self.assertTrue('html' in result)
+        self.value_in_result(reverse('album_create'), 'html', data)
         # valid album, redirect (via ajax)
         data = {'name': 'album1'}
-        result = self.ajax_post(reverse('album_create'), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(reverse('album_create'), 'url', data)
 
     def test_detail(self):
         """
@@ -199,23 +191,20 @@ class AlbumViews(SuperuserTest):
         self.assertEqual(Album.objects.get(pk=1).name, 'album1')
         # invalid album, display form again
         data = {'name': ''}
-        result = self.ajax_post(
-            reverse('album_edit', kwargs=dict(pk=1)), data)
-        self.assertTrue('html' in result)
+        self.value_in_result(
+            reverse('album_edit', kwargs=dict(pk=1)), 'html', data)
         # valid album, redirect (via ajax)
         data = {'name': 'album2'}
-        result = self.ajax_post(
-            reverse('album_edit', kwargs=dict(pk=1)), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(
+            reverse('album_edit', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Album.objects.get(pk=1).name, 'album2')
 
     def test_delete(self):
         Album.objects.create(name='album1')
         self.assertEqual(Album.objects.count(), 1)
         data = {'submit': True}
-        result = self.ajax_post(
-            reverse('album_delete', kwargs=dict(pk=1)), data)
-        self.assertTrue('url' in result)
+        self.value_in_result(
+            reverse('album_delete', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Album.objects.count(), 0)
 
 
