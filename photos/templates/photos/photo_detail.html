@@ -10,9 +10,9 @@
     <ul class="paginator">
         <li class="prev">
             {% if paginator.has_previous %}
-                <a href="{{ paginator.previous_url }}" data-navigate="left">&larr;&nbsp;{% trans 'Prev' %}</a>
+                <a href="{{ paginator.previous_url }}" data-navigate="left">&lsaquo;&nbsp;{% trans 'Prev' %}</a>
             {% else %}
-                <span>&larr;&nbsp;{% trans 'Prev' %}</span>
+                <span>&lsaquo;&nbsp;{% trans 'Prev' %}</span>
             {% endif %}
         </li>
         <li class="count">{{ paginator.index }} {% trans 'of' %} {{ paginator.count }}</li>
