@@ -1,6 +1,6 @@
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 DEBUG = TEMPLATE_DEBUG = True
 
@@ -109,8 +109,3 @@ AUTH_CODE_ADMIN = 'auth-code-admin'
 AUTH_CODE_ADMIN_GROUP = 'Admin Group'
 
 PHOTOS_PER_PAGE = 50
-
-try:
-    from .settings_local import *
-except ImportError:
-    pass

@@ -16,7 +16,7 @@ public/media/
 public/static/
 
 # local settings
-gallery/settings_local.py
+gallery/settings/local.py
 .coveralls.yml
 .coverage
 .coverage_html
