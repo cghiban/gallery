@@ -13,23 +13,27 @@ perhaps someone else may find it useful for inspiration.
 
 ## Installation
 
+This project requires Python 3.3 or 3.4. It will not work on any 2.x releases.
+It is recommended that you use [virtualenv](http://virtualenv.readthedocs.org/en/latest/)
+to run this project.
+
 1. Clone this Github repository:
 
         git clone https://github.com/timster/gallery.git
         cd gallery
 
-2. Install the pre-requisites:
+2. Install the Python prerequisites:
 
         pip install https://www.djangoproject.com/download/1.7c2/tarball/
         pip install -r requirements.txt
 
-3. Copy the settings template to create your local settings:
+3. Copy the local settings template to create your local settings:
 
-        cp gallery/settings_local.template gallery/settings_local.py
+        cp gallery/settings/local.template gallery/settings/local.py
 
-4. Edit the local settings file with your settings:
+4. Edit the local settings file and update it for your environment:
 
-        vi gallery/settings_local.py
+        vi gallery/settings/local.py
 
 5. Create the database and admin user:
 
@@ -39,12 +43,13 @@ perhaps someone else may find it useful for inspiration.
 
         python manage.py collectstatic
 
-7. Configure your web server to serve static files from the directory specified
-in the local settings file. See the following Django documentation for more info:
+7. Configure your Web server to serve static files from the STATIC_ROOT
+directory specified in the local settings file. See the following Django
+documentation for more info:
 [Deploying static files](https://docs.djangoproject.com/en/dev/howto/static-files/deployment/)
 
-6. Launch the application using the built-in runserver, or deploy using gunicorn,
-which is the application server of choice:
+6. Launch the application using the built-in development runserver, or deploy
+using gunicorn, which is the application server of choice:
 
         gunicorn gallery.wsgi:application
 
@@ -73,7 +78,7 @@ be added to the group.
 
 Automated testing is certainly not complete at the moment, but I'm working on it.
 
-[![Build Status](https://travis-ci.org/timster/gallery.svg?branch=master)](https://travis-ci.org/timster/gallery) 
+[![Build Status](https://travis-ci.org/timster/gallery.svg?branch=master)](https://travis-ci.org/timster/gallery)
 [![Coverage Status](https://coveralls.io/repos/timster/gallery/badge.png)](https://coveralls.io/r/timster/gallery)
 
 ## To-Do List
