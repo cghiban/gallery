@@ -24,7 +24,6 @@ to run this project.
 
 2. Install the Python prerequisites:
 
-        pip install https://www.djangoproject.com/download/1.7c2/tarball/
         pip install -r requirements.txt
 
 3. Copy the local settings template to create your local settings:
