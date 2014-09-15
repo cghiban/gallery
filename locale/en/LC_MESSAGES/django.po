@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-31 08:44-0400\n"
+"POT-Creation-Date: 2014-09-15 09:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,13 +40,13 @@ msgstr ""
 msgid "Authorization code provided was not correct."
 msgstr ""
 
-#: accounts/forms.py:124
+#: accounts/forms.py:112
 msgid "A user with that email address could not be             found."
 msgstr ""
 
 #: accounts/templates/accounts/login.html:5
 #: accounts/templates/accounts/login.html:6
-#: accounts/templates/accounts/login.html:16 gallery/templates/base.html:37
+#: accounts/templates/accounts/login.html:16 gallery/templates/base.html:38
 msgid "Login"
 msgstr ""
 
@@ -69,7 +69,7 @@ msgstr ""
 
 #: accounts/templates/accounts/password_reset.html:5
 #: accounts/templates/accounts/password_reset.html:6
-#: gallery/templates/base.html:38
+#: gallery/templates/base.html:39
 msgid "Forgot Password"
 msgstr ""
 
@@ -102,7 +102,7 @@ msgid ""
 msgstr ""
 
 #: accounts/templates/accounts/profile.html:5
-#: accounts/templates/accounts/profile.html:6 gallery/templates/base.html:34
+#: accounts/templates/accounts/profile.html:6 gallery/templates/base.html:35
 msgid "Profile"
 msgstr ""
 
@@ -119,7 +119,7 @@ msgid "Change password."
 msgstr ""
 
 #: accounts/templates/accounts/register.html:5
-#: accounts/templates/accounts/register.html:6 gallery/templates/base.html:39
+#: accounts/templates/accounts/register.html:6 gallery/templates/base.html:40
 msgid "Register"
 msgstr ""
 
@@ -157,18 +157,18 @@ msgstr ""
 msgid "Your password has been successfully changed."
 msgstr ""
 
-#: gallery/templates/_paginator.html:7 gallery/templates/_paginator.html:9
-#: photos/templates/photos/photo_detail.html:11
+#: gallery/templates/_paginator.html:9 gallery/templates/_paginator.html:11
 #: photos/templates/photos/photo_detail.html:13
+#: photos/templates/photos/photo_detail.html:15
 msgid "Prev"
 msgstr ""
 
 #: gallery/templates/_paginator.html:14
-#: photos/templates/photos/photo_detail.html:17
+#: photos/templates/photos/photo_detail.html:18
 msgid "of"
 msgstr ""
 
-#: gallery/templates/_paginator.html:19 gallery/templates/_paginator.html:21
+#: gallery/templates/_paginator.html:17 gallery/templates/_paginator.html:19
 #: photos/templates/photos/photo_detail.html:21
 #: photos/templates/photos/photo_detail.html:23
 msgid "Next"
@@ -178,137 +178,163 @@ msgstr ""
 msgid "Photo Gallery"
 msgstr ""
 
-#: gallery/templates/base.html:27 photos/forms.py:52
-#: photos/templates/photos/album_list.html:6
-#: photos/templates/photos/album_list.html:7 photos/views/album.py:33
+#: gallery/templates/base.html:28 photos/forms.py:53
+#: photos/templates/photos/album_list.html:5
+#: photos/templates/photos/album_list.html:6 photos/views/album.py:33
 msgid "Albums"
 msgstr ""
 
-#: gallery/templates/base.html:28 photos/forms.py:56
-#: photos/templates/photos/location_list.html:6
-#: photos/templates/photos/location_list.html:7 photos/views/location.py:31
+#: gallery/templates/base.html:29 photos/forms.py:57
+#: photos/templates/photos/location_list.html:5
+#: photos/templates/photos/location_list.html:6 photos/views/location.py:31
 msgid "Locations"
 msgstr ""
 
-#: gallery/templates/base.html:29 photos/forms.py:54
+#: gallery/templates/base.html:30 photos/forms.py:55
 #: photos/templates/photos/person_list.html:6
 #: photos/templates/photos/person_list.html:7 photos/views/person.py:32
 msgid "People"
 msgstr ""
 
-#: gallery/templates/base.html:31 photos/templates/photos/upload.html:5
+#: gallery/templates/base.html:32 photos/templates/photos/upload.html:5
 #: photos/templates/photos/upload.html:6
 #: photos/templates/photos/upload.html:14
 msgid "Upload"
 msgstr ""
 
-#: gallery/templates/base.html:33 photos/forms.py:57
+#: gallery/templates/base.html:34 photos/forms.py:58
 #: photos/templates/photos/search.html:5 photos/templates/photos/search.html:6
 #: photos/templates/photos/search.html:14
 msgid "Search"
 msgstr ""
 
-#: gallery/templates/base.html:35
+#: gallery/templates/base.html:36
 msgid "Logout"
 msgstr ""
 
-#: photos/forms.py:28
+#: photos/forms.py:29
 msgid "New album"
 msgstr ""
 
-#: photos/forms.py:68
+#: photos/forms.py:69
 msgid "Photos"
 msgstr ""
 
-#: photos/forms.py:89
+#: photos/forms.py:90
 #, python-format
 msgid "The following files are not allowed: %s"
 msgstr ""
 
-#: photos/models.py:20 photos/models.py:47 photos/models.py:76
-#: photos/models.py:126
+#: photos/models.py:19 photos/models.py:46 photos/models.py:75
+#: photos/models.py:122
 msgid "name"
 msgstr ""
 
-#: photos/models.py:24 photos/models.py:84
+#: photos/models.py:23 photos/models.py:83
 msgid "location"
 msgstr ""
 
-#: photos/models.py:25
+#: photos/models.py:24
 msgid "locations"
 msgstr ""
 
-#: photos/models.py:51
+#: photos/models.py:50
 msgid "person"
 msgstr ""
 
-#: photos/models.py:52 photos/models.py:131
+#: photos/models.py:51 photos/models.py:127
 msgid "people"
 msgstr ""
 
-#: photos/models.py:78
+#: photos/models.py:77
 msgid "month"
 msgstr ""
 
-#: photos/models.py:80
+#: photos/models.py:79
 msgid "year"
 msgstr ""
 
-#: photos/models.py:88 photos/models.py:129
+#: photos/models.py:87 photos/models.py:125
 msgid "album"
 msgstr ""
 
-#: photos/models.py:89
+#: photos/models.py:88
 msgid "albums"
 msgstr ""
 
-#: photos/models.py:127 photos/models.py:187
+#: photos/models.py:123 photos/models.py:181
 msgid "file"
 msgstr ""
 
-#: photos/models.py:142 photos/models.py:188
+#: photos/models.py:138 photos/models.py:182
 msgid "photo"
 msgstr ""
 
-#: photos/models.py:143
+#: photos/models.py:139
 msgid "photos"
 msgstr ""
 
-#: photos/models.py:186
+#: photos/models.py:180
 msgid "size"
 msgstr ""
 
-#: photos/models.py:193
+#: photos/models.py:187
 msgid "thumbnail"
 msgstr ""
 
-#: photos/models.py:194
+#: photos/models.py:188
 msgid "thumbnails"
 msgstr ""
 
-#: photos/templates/photos/ajax_form.html:9
+#: photos/templates/photos/_album_count.html:5
+#, python-format
+msgid ""
+"\n"
+"        %(total)s album\n"
+"    "
+msgid_plural ""
+"\n"
+"        %(total)s albums\n"
+"    "
+msgstr[0] ""
+msgstr[1] ""
+
+#: photos/templates/photos/_photo_count.html:5
+#, python-format
+msgid ""
+"\n"
+"        %(total)s photo\n"
+"    "
+msgid_plural ""
+"\n"
+"        %(total)s photos\n"
+"    "
+msgstr[0] ""
+msgstr[1] ""
+
+#: photos/templates/photos/ajax_form.html:11
 msgid "Cancel"
 msgstr ""
 
-#: photos/templates/photos/album_detail.html:11
+#: photos/templates/photos/album_detail.html:12
 msgid "Edit"
 msgstr ""
 
-#: photos/templates/photos/album_detail.html:12 photos/views/album.py:118
+#: photos/templates/photos/album_detail.html:13 photos/views/album.py:118
 msgid "Merge"
 msgstr ""
 
-#: photos/templates/photos/album_detail.html:15
+#: photos/templates/photos/album_detail.html:16
 #: photos/templates/photos/location_detail.html:15
-#: photos/templates/photos/person_detail.html:14
-#: photos/templates/photos/photo_detail.html:37 photos/views/album.py:98
+#: photos/templates/photos/person_detail.html:15
+#: photos/templates/photos/photo_detail.html:40 photos/views/album.py:98
 #: photos/views/location.py:78 photos/views/person.py:46
 #: photos/views/photo.py:173
 msgid "Delete"
 msgstr ""
 
-#: photos/templates/photos/album_detail.html:17
-#: photos/templates/photos/photo_detail.html:39
+#: photos/templates/photos/album_detail.html:18
+#: photos/templates/photos/photo_detail.html:42
 msgid "Download"
 msgstr ""
 
@@ -316,24 +342,9 @@ msgstr ""
 msgid "Create Album"
 msgstr ""
 
-#: photos/templates/photos/album_list.html:30
-#: photos/templates/photos/location_detail.html:33
-#: photos/templates/photos/person_list.html:30
-#, python-format
-msgid ""
-"\n"
-"                                %(total)s photo\n"
-"                            "
-msgid_plural ""
-"\n"
-"                                %(total)s photos\n"
-"                            "
-msgstr[0] ""
-msgstr[1] ""
-
 #: photos/templates/photos/location_detail.html:12
-#: photos/templates/photos/person_detail.html:11
-#: photos/templates/photos/photo_detail.html:32
+#: photos/templates/photos/person_detail.html:12
+#: photos/templates/photos/photo_detail.html:35
 msgid "Rename"
 msgstr ""
 
@@ -341,32 +352,19 @@ msgstr ""
 msgid "Create Location"
 msgstr ""
 
-#: photos/templates/photos/location_list.html:30
-#, python-format
-msgid ""
-"\n"
-"                                %(total)s album\n"
-"                            "
-msgid_plural ""
-"\n"
-"                                %(total)s albums\n"
-"                            "
-msgstr[0] ""
-msgstr[1] ""
-
-#: photos/templates/photos/person_list.html:12 photos/views/person.py:67
+#: photos/templates/photos/person_list.html:13 photos/views/person.py:67
 msgid "Create Person"
 msgstr ""
 
-#: photos/templates/photos/photo_detail.html:31
+#: photos/templates/photos/photo_detail.html:34
 msgid "Rotate"
 msgstr ""
 
-#: photos/templates/photos/photo_detail.html:33
+#: photos/templates/photos/photo_detail.html:36
 msgid "Move"
 msgstr ""
 
-#: photos/templates/photos/photo_detail.html:34
+#: photos/templates/photos/photo_detail.html:37
 msgid "Tag"
 msgstr ""
 
@@ -447,27 +445,27 @@ msgstr ""
 msgid "Are you sure you want to delete this photo?"
 msgstr ""
 
-#: stream/models.py:29
+#: stream/models.py:27
 msgid "timestamp"
 msgstr ""
 
-#: stream/models.py:30
+#: stream/models.py:28
 msgid "verb"
 msgstr ""
 
-#: stream/models.py:31
+#: stream/models.py:29
 msgid "join"
 msgstr ""
 
-#: stream/models.py:33
+#: stream/models.py:31
 msgid "user"
 msgstr ""
 
-#: stream/models.py:49
+#: stream/models.py:47
 msgid "action"
 msgstr ""
 
-#: stream/models.py:50
+#: stream/models.py:48
 msgid "actions"
 msgstr ""
 

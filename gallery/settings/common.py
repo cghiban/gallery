@@ -1,6 +1,6 @@
-import os
+from os import path
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+BASE_DIR = path.dirname(path.dirname(path.dirname(__file__)))
 
 DEBUG = TEMPLATE_DEBUG = True
 
@@ -9,7 +9,7 @@ INTERNAL_IPS = ('127.0.0.1', )
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'database.sqlite3')
+        'NAME': path.join(BASE_DIR, 'database.sqlite3')
     }
 }
 
@@ -41,12 +41,16 @@ LOGOUT_URL = 'accounts:logout'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR, 'tmp', 'cache'),
+        'LOCATION': path.join(BASE_DIR, 'tmp', 'cache'),
     }
 }
 
+LOCALE_PATHS = (
+    path.join(BASE_DIR, 'locale'),
+)
+
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'gallery', 'static'),
+    path.join(BASE_DIR, 'gallery', 'static'),
 )
 
 STATICFILES_FINDERS = (
@@ -71,7 +75,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'gallery', 'templates'),
+    path.join(BASE_DIR, 'gallery', 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -96,10 +100,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')
+MEDIA_ROOT = path.join(BASE_DIR, 'public', 'media')
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
+STATIC_ROOT = path.join(BASE_DIR, 'public', 'static')
 STATIC_URL = '/static/'
 
 ALLOWED_EXTENSIONS = 'zip bmp raw jpg jpeg png gif tiff'.split()
