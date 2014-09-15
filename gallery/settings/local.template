@@ -1,5 +1,7 @@
 from .common import *
 
+### Application settings
+
 DEBUG = TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['example.com', ]
@@ -12,6 +14,8 @@ MANAGERS = ADMINS
 
 SECRET_KEY = 'secretkey'
 
+### Email settings
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
@@ -23,13 +27,15 @@ EMAIL_SUBJECT_PREFIX = '[Photo Gallery] '
 DEFAULT_FROM_EMAIL = 'admin@localhost'
 SERVER_EMAIL = 'admin@localhost'
 
+### Static and media settings
+
 MEDIA_ROOT = '/change/path/to/media/'
 MEDIA_URL = '/media/'
 
 STATIC_ROOT = '/change/path/to/static/'
 STATIC_URL = '/static/'
 
-# Project specific settings
+### Project specific settings
 
 AUTH_CODE_USER = 'user'
 AUTH_CODE_ADMIN = 'admin'
