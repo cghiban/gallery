@@ -45,7 +45,7 @@ to run this project.
 7. Configure your Web server to serve static files from the STATIC_ROOT
 directory specified in the local settings file. See the following Django
 documentation for more info:
-[Deploying static files](https://docs.djangoproject.com/en/dev/howto/static-files/deployment/)
+[Deploying static files](https://docs.djangoproject.com/en/1.7/howto/static-files/deployment/)
 
 6. Launch the application using the built-in development runserver, or deploy
 using gunicorn, which is the application server of choice:
