@@ -14,14 +14,6 @@
 
 {% for field in form.visible_fields %}
     <div class="field {% if field.errors %}field-with-errors{% endif %}">
-        {% if field.errors %}
-            <ul class="errors">
-                {% for err in field.errors %}
-                  <li>{{ err }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-
         {% if field.is_checkbox %}
             <div class="checkbox">{{ field }}{{ field.label_tag }}</div>
         {% else %}
@@ -31,6 +23,13 @@
                     <span class="helptext">{{ field.field.help_text|safe }}</span>
                 {% endif %}
             </div>
+        {% endif %}
+        {% if field.errors %}
+            <ul class="errors">
+                {% for err in field.errors %}
+                  <li>{{ err }}</li>
+                {% endfor %}
+            </ul>
         {% endif %}
     </div>
 {% endfor %}
