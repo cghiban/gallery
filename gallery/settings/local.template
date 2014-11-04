@@ -14,6 +14,15 @@ MANAGERS = ADMINS
 
 SECRET_KEY = 'secretkey'
 
+### Database settings
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': path.join(BASE_DIR, 'database.sqlite3')
+    }
+}
+
 ### Email settings
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
