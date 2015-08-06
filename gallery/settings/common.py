@@ -40,6 +40,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'gallery.assets.CompileAssetsMiddleware',
 )
 
 ### Database settings
@@ -123,6 +124,25 @@ MEDIA_URL = '/media/'
 
 STATIC_ROOT = path.join(BASE_DIR, 'public', 'static')
 STATIC_URL = '/static/'
+
+STATIC_BASE_DIR = path.join(BASE_DIR, 'gallery', 'static')
+
+CSS_FILES = {
+    path.join(STATIC_BASE_DIR, 'application.css'): (
+        path.join(STATIC_BASE_DIR, 'css/reset.css'),
+        path.join(STATIC_BASE_DIR, 'css/fonts.css'),
+        path.join(STATIC_BASE_DIR, 'css/base.css'),
+        path.join(STATIC_BASE_DIR, 'chosen-1.1.0/chosen.css'),
+    )
+}
+
+JS_FILES = {
+    path.join(STATIC_BASE_DIR, 'application.js'): (
+        path.join(STATIC_BASE_DIR, 'js/jquery-2.1.4.js'),
+        path.join(STATIC_BASE_DIR, 'js/base.js'),
+        path.join(STATIC_BASE_DIR, 'chosen-1.1.0/chosen.jquery.js'),
+    )
+}
 
 ### Project specific settings
 
