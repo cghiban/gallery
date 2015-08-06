@@ -151,7 +151,7 @@ class RegisterView(TestCaseWithUser):
         response = self.client.post(reverse('accounts:register'), form_data)
         self.assertFormError(
             response, 'form', 'username',
-            RegisterForm.error_messages['duplicate_username'])
+            User._meta.get_field('username').error_messages['unique'])
         self.assertFormError(
             response, 'form', 'email',
             RegisterForm.error_messages['duplicate_email'])

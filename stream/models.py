@@ -1,9 +1,9 @@
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
 from django.conf import settings
-from django.utils import timezone
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 
 class Action(models.Model):
@@ -33,14 +33,13 @@ class Action(models.Model):
     target_content_type = models.ForeignKey(
         ContentType, related_name='target', blank=True, null=True)
     target_object_id = models.CharField(max_length=200, blank=True, null=True)
-    target = generic.GenericForeignKey(
-        'target_content_type', 'target_object_id')
+    target = GenericForeignKey('target_content_type', 'target_object_id')
 
     action_object_content_type = models.ForeignKey(
         ContentType, related_name='action_object', blank=True, null=True)
     action_object_object_id = models.CharField(
         max_length=200, blank=True, null=True)
-    action_object = generic.GenericForeignKey(
+    action_object = GenericForeignKey(
         'action_object_content_type', 'action_object_object_id')
 
     class Meta:

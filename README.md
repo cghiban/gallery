@@ -13,7 +13,7 @@ perhaps someone else may find it useful for inspiration.
 
 ## Installation
 
-This project requires Python 3.3 or 3.4. It will not work on any 2.x releases.
+This project requires Python 3.3 or later. It will not work on any 2.x releases.
 It is recommended that you use [virtualenv](http://virtualenv.readthedocs.org/en/latest/)
 to run this project.
 
