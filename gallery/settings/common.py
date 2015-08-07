@@ -132,7 +132,7 @@ CSS_FILES = {
         path.join(STATIC_BASE_DIR, 'css/reset.css'),
         path.join(STATIC_BASE_DIR, 'css/fonts.css'),
         path.join(STATIC_BASE_DIR, 'css/base.css'),
-        path.join(STATIC_BASE_DIR, 'chosen-1.1.0/chosen.css'),
+        path.join(STATIC_BASE_DIR, 'chosen-1.4.2/chosen.css'),
     )
 }
 
@@ -140,7 +140,7 @@ JS_FILES = {
     path.join(STATIC_BASE_DIR, 'application.js'): (
         path.join(STATIC_BASE_DIR, 'js/jquery-2.1.4.js'),
         path.join(STATIC_BASE_DIR, 'js/base.js'),
-        path.join(STATIC_BASE_DIR, 'chosen-1.1.0/chosen.jquery.js'),
+        path.join(STATIC_BASE_DIR, 'chosen-1.4.2/chosen.jquery.js'),
     )
 }
 
