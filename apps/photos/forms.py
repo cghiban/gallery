@@ -3,15 +3,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms.models import modelform_factory
 
 from apps.photos.models import Album, Photo, Location, Person
-from apps.photos.utils import friendly_filename
+from apps.photos.utils import friendly_name
 from utils.uploads import file_allowed
 
-
-AlbumForm = modelform_factory(
-    Album, fields=['name', 'month', 'year', 'location'])
-LocationRenameForm = modelform_factory(Location, fields=['name', ])
-PersonRenameForm = modelform_factory(Person, fields=['name', ])
-PhotoRenameForm = modelform_factory(Photo, fields=['name', ])
+AlbumForm = modelform_factory(Album, fields=['name', 'month', 'year', 'location'])
+LocationNameForm = modelform_factory(Location, fields=['name', ])
+PersonNameForm = modelform_factory(Person, fields=['name', ])
+PhotoNameForm = modelform_factory(Photo, fields=['name', ])
 PhotoTagForm = modelform_factory(Photo, fields=['people', ])
 PhotoMoveForm = modelform_factory(Photo, fields=['album', ])
 
@@ -50,12 +48,12 @@ class SearchForm(forms.Form):
     """
 
     a = forms.ModelMultipleChoiceField(
-        label=_('Albums'), queryset=Album.objects.all())
+        label=_('Albums'), queryset=Album.objects.all(), required=False)
     p = forms.ModelMultipleChoiceField(
-        label=_('People'), queryset=Person.objects.all())
+        label=_('People'), queryset=Person.objects.all(), required=False)
     l = forms.ModelMultipleChoiceField(
-        label=_('Locations'), queryset=Location.objects.all())
-    q = forms.CharField(label=_('Search'))
+        label=_('Locations'), queryset=Location.objects.all(), required=False)
+    q = forms.CharField(label=_('Search'), required=False)
 
 
 class UploadForm(forms.Form):
@@ -94,13 +92,14 @@ class UploadForm(forms.Form):
     def save(self):
         """
         Add each photo to the album (which must already be existing).
+        Create a thumbnail so there is no lag when redirecting to the album.
         TODO: support for zip file uploading.
         """
         self.instance = self.cleaned_data['album']
         self.photo_count = 0
         for file_handle in self.files.getlist('photos'):
             self.photo_count = self.photo_count + 1
-            photo_name = friendly_filename(file_handle.name)
+            photo_name = friendly_name(file_handle.name)
             photo = Photo.objects.create(
                 album=self.instance, name=photo_name, file=file_handle)
             photo.thumbnail('200x200-fit')

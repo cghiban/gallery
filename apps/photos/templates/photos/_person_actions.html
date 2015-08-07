@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<ul class="actions">
+    {% if perms.photos.change_person %}
+        <li><a href="{% url 'person_rename' person.pk %}" data-modal="form">{% trans 'Rename' %}</a></li>
+    {% endif %}
+    {% if perms.photos.delete_person %}
+        <li><a href="{% url 'person_delete' person.pk %}" data-modal="form">{% trans 'Delete' %}</a></li>
+    {% endif %}
+</ul>

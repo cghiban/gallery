@@ -1,7 +1,7 @@
 <div style="display:none">{% csrf_token %}</div>
 
 {% if form.non_field_errors %}
-    <ul class="errors non-field-errors">
+    <ul class="errors non_field_errors">
         {% for err in form.non_field_errors %}
             <li>{{ err }}</li>
         {% endfor %}
@@ -13,17 +13,13 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    <div class="field {% if field.errors %}field-with-errors{% endif %}">
-        {% if field.is_checkbox %}
-            <div class="checkbox">{{ field }}{{ field.label_tag }}</div>
-        {% else %}
-            <div class="input">
-                {{ field.label_tag }}{{ field }}
-                {% if field.field.help_text and not request.is_ajax %}
-                    <span class="helptext">{{ field.field.help_text|safe }}</span>
-                {% endif %}
-            </div>
-        {% endif %}
+    <div class="field {% if field.errors %}field_with_errors{% endif %}">
+        <div class="input">
+            {{ field.label_tag }}{{ field }}
+            {% if field.field.help_text and not request.is_ajax %}
+                <span class="helptext">{{ field.field.help_text|safe }}</span>
+            {% endif %}
+        </div>
         {% if field.errors %}
             <ul class="errors">
                 {% for err in field.errors %}

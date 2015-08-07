@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<ul class="actions">
+    {% spaceless %}
+    {% if perms.photos.change_location %}
+        <li><a href="{% url 'location_rename' location.pk %}" data-modal="form">{% trans 'Rename' %}</a></li>
+    {% endif %}
+    {% if perms.photos.delete_location %}
+        <li><a href="{% url 'location_delete' location.pk %}" data-modal="form">{% trans 'Delete' %}</a></li>
+    {% endif %}
+    {% endspaceless %}
+</ul>

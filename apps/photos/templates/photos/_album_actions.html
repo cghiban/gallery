@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<ul class="actions">
+    {% if perms.photos.change_album %}
+        <li><a href="{% url 'album_edit' album.pk %}" data-modal="form">{% trans 'Edit' %}</a></li>
+        <li><a href="{% url 'album_merge' album.pk %}" data-modal="form">{% trans 'Merge' %}</a></li>
+    {% endif %}
+    {% if perms.photos.delete_album %}
+        <li><a href="{% url 'album_delete' album.pk %}" data-modal="form">{% trans 'Delete' %}</a></li>
+    {% endif %}
+    <li><a href="{% url 'album_download' album.pk %}">{% trans 'Download' %}</a></li>
+</ul>

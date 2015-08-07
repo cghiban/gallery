@@ -1,23 +1,19 @@
 {% extends 'base.html' %}
 
-{% load humanize %}
 {% load i18n %}
 
 {% block title %}{% trans 'People' %}{% endblock %}
 {% block header %}{% trans 'People' %}{% endblock %}
 
 {% block actions %}
-    <ul class="actions person-actions">
-        {% spaceless %}
+    <ul class="actions">
         {% if perms.photos.add_person %}
             <li><a href="{% url 'person_create' %}" data-modal="form">{% trans 'Create Person' %}</a></li>
         {% endif %}
-        {% endspaceless %}
     </ul>
 {% endblock %}
 
 {% block content %}
-{% spaceless %}
     <ul class="albums">
         {% for person in person_list %}
             <li>
@@ -31,5 +27,4 @@
             </li>
         {% endfor %}
     </ul>
-{% endspaceless %}
 {% endblock %}

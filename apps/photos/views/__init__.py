@@ -3,73 +3,80 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import QueryDict
-from django.shortcuts import redirect, render
+from django.views.generic import FormView, ListView
+from django.utils.translation import ugettext as _
 
 from apps.photos.forms import UploadForm, SearchForm
 from apps.photos.models import Photo
 from apps.stream.utils import send_action
-from utils.paginate import paginate
 
 
-def get_photo_queryset(album=None, query=None, person=None):
-    if album:
-        return album.photo_set.all()
-    if person:
-        return person.photo_set.all()
-    if query:
-        query_dict = QueryDict(query)
-        queryset = Photo.objects.all()
-        q = query_dict.get('q')
-        if q:
-            queryset = queryset.filter(
-                Q(name__icontains=q) | Q(album__name__icontains=q))
-        a = query_dict.getlist('a')
-        if a:
-            queryset = queryset.filter(album__in=a)
-        p = query_dict.getlist('p')
-        if p:
-            queryset = queryset.filter(people__in=p)
-        l = query_dict.getlist('l')
-        if l:
-            queryset = queryset.filter(album__location__in=l)
-        return queryset
+def get_search_queryset(query):
+    """
+    Build and return a Photo queryset based on the parameters passed in, which will be a querystring
+    containing the user's search terms.
+    """
+    data = QueryDict(query)
+    queryset = Photo.objects.all()
+
+    q = data.get('q')
+    a = data.getlist('a')
+    p = data.getlist('p')
+    l = data.getlist('l')
+
+    if q:
+        queryset = queryset.filter(Q(name__icontains=q) | Q(album__name__icontains=q))
+    if a:
+        queryset = queryset.filter(album__in=a)
+    if p:
+        queryset = queryset.filter(people__in=p)
+    if l:
+        queryset = queryset.filter(album__location__in=l)
+
+    return queryset
 
 
-@permission_required('photos.add_photo')
-def upload(request):
-    form = UploadForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
+class Upload(FormView):
+    template_name = 'photos/upload.html'
+    form_class = UploadForm
+
+    def form_valid(self, form):
         album = form.save()
-        send_action(
-            request.user,
-            'added %s photos to the album' % form.photo_count,
-            target=album)
-        return redirect(album.get_absolute_url())
-    context = {'form': form}
-    return render(request, 'photos/upload.html', context)
+        self.success_url = album.get_absolute_url()
+        action = 'added {} photos to the album'.format(form.photo_count)
+        send_action(self.request.user, action, target=album)
+        return super().form_valid(form)
 
 
-@login_required
-def results(request, query):
-    queryset = get_photo_queryset(query=query)
-    paginator, queryset = paginate(request, queryset, settings.PHOTOS_PER_PAGE)
-    context = {
-        'query': query,
-        'paginator': paginator,
-        'photo_list': queryset,
-        'back_link': {'url': reverse('search'), 'title': 'Search'}
-    }
-    return render(request, 'photos/search_results.html', context)
+class Search(FormView):
+    template_name = 'photos/search.html'
+    form_class = SearchForm
+
+    def form_valid(self, form):
+        datacopy = form.data.copy()
+        if 'csrfmiddlewaretoken' in datacopy:
+            del datacopy['csrfmiddlewaretoken']
+        self.success_url = reverse('results', kwargs={'query': datacopy.urlencode()})
+        return super().form_valid(form)
 
 
-@login_required
-def search(request):
-    form = SearchForm(request.POST or None)
-    if request.POST:
-        post_copy = request.POST.copy()
-        if 'csrfmiddlewaretoken' in post_copy:
-            del post_copy['csrfmiddlewaretoken']
-        return redirect(reverse('results',
-                                kwargs={'query': post_copy.urlencode()}))
-    context = {'form': form}
-    return render(request, 'photos/search.html', context)
+class Results(ListView):
+    paginate_by = settings.PHOTOS_PER_PAGE
+    template_name = 'photos/photo_list.html'
+
+    def get_queryset(self):
+        return get_search_queryset(self.kwargs['query'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        back_link = reverse('search'), _('Search')
+
+        context['query'] = self.kwargs['query']
+        context['back_link'] = back_link
+        context['page_title'] = _('Results')
+        return context
+
+
+upload = permission_required('photos.add_photo')(Upload.as_view())
+search = login_required(Search.as_view())
+results = login_required(Results.as_view())

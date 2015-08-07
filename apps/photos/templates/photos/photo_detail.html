@@ -6,13 +6,12 @@
 {% block header %}{{ photo.album.name }}{% endblock %}
 
 {% block pagination %}
-{% spaceless %}
     <ul class="paginator">
         <li class="prev">
             {% if paginator.has_previous %}
-                <a href="{{ paginator.previous_url }}" data-navigate="left">&lsaquo;&nbsp;{% trans 'Prev' %}</a>
+                <a href="{{ paginator.previous_url }}" data-navigate="left">&larr;&nbsp;{% trans 'Prev' %}</a>
             {% else %}
-                <span>&lsaquo;&nbsp;{% trans 'Prev' %}</span>
+                <span>&larr;&nbsp;{% trans 'Prev' %}</span>
             {% endif %}
         </li>
         <li class="count">{{ paginator.index }} {% trans 'of' %} {{ paginator.count }}</li>
@@ -24,12 +23,10 @@
             {% endif %}
         </li>
     </ul>
-{% endspaceless %}
 {% endblock %}
 
 {% block actions %}
-    <ul class="actions photo-actions">
-        {% spaceless %}
+    <ul class="actions">
         {% if perms.photos.change_photo %}
             <li><a href="{% url 'photo_rotate' photo.pk %}" data-modal="rotate">{% trans 'Rotate' %}</a></li>
             <li><a href="{% url 'photo_rename' photo.pk %}" data-modal="form">{% trans 'Rename' %}</a></li>
@@ -40,15 +37,13 @@
             <li><a href="{% url 'photo_delete' photo.pk %}" data-modal="form">{% trans 'Delete' %}</a></li>
         {% endif %}
         <li><a href="{% url 'photo_download' photo.pk %}">{% trans 'Download' %}</a></li>
-        {% endspaceless %}
     </ul>
 {% endblock %}
 
 {% block content %}
-{% spaceless %}
     <div class="photo">
         <img src="{{ photo.file_medium.url }}" alt="{{ photo.name }}">
+
         <div class="name">{{ photo.name }}</div>
     </div>
-{% endspaceless %}
 {% endblock %}

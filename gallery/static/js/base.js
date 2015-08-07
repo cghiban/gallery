@@ -1,108 +1,96 @@
-$(function () {
-
-    function keydownNavigate(direction) {
-        selector = $("[data-navigate=" + direction + "]:last");
+var ajax = {
+    post: function (url, data, callback) {
+        $.ajax({
+            type: 'POST', url: url, data: data,
+            success: function (data) { callback(data); },
+            error: function (data) { ajax.error(data); }
+        });
+    },
+    get: function (url, callback) {
+        $.ajax({
+            type: 'GET', url: url,
+            success: function (data) { callback(data); },
+            error: function (data) { ajax.error(data); }
+        });
+    },
+    error: function (data) {
+        console.log(data);
+        alert("There was an error processing your request.\nPlease try again later.");
+    },
+};
+var navigation = {
+    goto: function (dir) {
+        selector = $("[data-navigate=" + dir + "]:last");
         if (selector.attr("href")) {
             window.location = selector.attr("href");
         }
-    }
-
-    // Handle the keydown navigation for images and albums.
-    $(document).keydown(function (event) {
-        if (event.which == 37) (keydownNavigate("left") );
-        if (event.which == 39) (keydownNavigate("right") );
-        if (event.which == 40) (keydownNavigate("down") );
-        // Only scroll up if we are at the top of the page.
-        if (event.which == 38 && $(document).scrollTop() == 0) (keydownNavigate("up") );
-    });
-
-    // Enabling the modal window shows the wrapper and enables the cancel button.
-    function enableModalWindow() {
-        $("#modal-window").css('display', 'block');
-        $("#modal .cancel").click(function (event) {
-            disableModalWindow();
+    },
+    init: function () {
+        $(document).keydown(function (event) {
+            if (event.which == 37) { navigation.goto("left"); }
+            if (event.which == 39) { navigation.goto("right"); }
+            if (event.which == 40) { navigation.goto("down"); }
+            // Only navigate up if we are at the top of the page.
+            if (event.which == 38 && $(document).scrollTop() == 0) { navigation.goto("up"); }
         });
+    }
+};
+var form = {
+    process: function (data) {
+        if (data.url) {
+            window.location = data.url;
+            return;
+        }
+        if (data.html) {
+            form.showModal(data);
+            return;
+        }
+        ajax.error(data);
+    },
+    showModal: function (data) {
+        $('#modal-window').show();
+        $('#modal').html(data.html);
         $("#modal select").chosen();
-    }
 
-    // Disabling the modal window clears the html and hides the  wrapper.
-    function disableModalWindow() {
-        $("#modal").html("");
-        $("#modal-window").css('display', 'none');
-    }
+        $("#modal .cancel").click(function (event) {
+            form.hideModal();
+        });
 
-    // There was a processing error, so log it and alert the user.
-    function errorProcessing(data) {
-        console.log(data);
-        alert("Error processing request. Please try again later.");
-    }
-
-    // Initializing the modal form will change the form to an AJAX form
-    // and will catch the form resposne and re-populate the div with the
-    // results of the form if status is "ERROR". If status is "OK" then the
-    // page will be refreshed with the URL that was sent from the server.
-    function initializeModalForm() {
-        // Change the form in the modal window to an AJAX form.
         $("#modal form").submit(function (event) {
             event.preventDefault();
-            $.ajax({
-                method: "POST",
-                url: $(this).attr("action"),
-                data: $(this).serialize(),
-                success: function (data) {
-                   if (data.url) {
-                       disableModalWindow();
-                       window.location = data.url;
-                   }
-                   else if (data.html) {
-                       $("#modal").html(data.html);
-                       enableModalWindow();
-                       initializeModalForm();
-                   }
-                   else {
-                       errorProcessing(data);
-                   }
-                },
-                error: function (data) {
-                   errorProcessing(data);
-                }
-            });
+            ajax.post($(this).attr("action"), $(this).serialize(), form.process);
+        });
+    },
+    hideModal: function () {
+        $('#modal-window').hide();
+        $("#modal").html("");
+    },
+    init: function () {
+        $("[data-modal='form']").click(function (event) {
+            event.preventDefault();
+            ajax.get($(this).attr("href"), form.showModal);
+        });
+    },
+};
+
+var rotate = {
+    process: function (data) {
+        // Simply reload the image (which will be rotated).
+        // Strip off the previous querystring from the image first.
+        // Could not find an easy reliable way to rotate in CSS or JS so this will have to do for now.
+        img = $('.photo img');
+        img.attr("src", img.attr("src").split("?")[0] + "?" + new Date().getTime());
+    },
+    init: function () {
+        $("[data-modal='rotate']").click(function (event) {
+            event.preventDefault();
+            ajax.post($(this).attr("href"), {}, rotate.process);
         });
     }
+};
 
-    // Send an AJAX request when Rotate is clicked.
-    $("[data-modal='rotate']").click(function (event) {
-        event.preventDefault();
-        $.ajax({
-            method: "POST",
-            url: $(this).attr("href"),
-            success: function (data) {
-               // Simply reload the image (which will be rotated).
-               // Strip off the previous querystring from the image first.
-               img = $(".photo img");
-               img.attr("src", img.attr("src").split("?")[0] + "?" +
-                   new Date().getTime());
-            },
-            error: function (data) {
-               errorProcessing(data);
-            }
-        });
-    });
-
-    // Display the form when any modal form links are clicked.
-    $("[data-modal='form']").click(function (event) {
-        event.preventDefault();
-        $.getJSON($(this).attr("href"), function (data) {
-            if (data.html) {
-                $("#modal").html(data.html)
-                enableModalWindow();
-                initializeModalForm();
-                $("#modal input[type='text']:enabled:first").focus();
-            }
-            else {
-                errorProcessing(data);
-            }
-        });
-    });
-
+$(function () {
+    navigation.init();
+    form.init();
+    rotate.init()
 });

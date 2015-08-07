@@ -1,85 +1,94 @@
+from django.contrib.auth.decorators import login_required, permission_required
+
 from django.utils.translation import ugettext as _
 from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
-from django.core.urlresolvers import reverse
-from django.shortcuts import render, get_object_or_404
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.views.generic import ListView
 
-from apps.photos.forms import PersonRenameForm
+from apps.photos.forms import PersonNameForm
 from apps.photos.models import Person
-from apps.photos.views import get_photo_queryset
 from apps.stream.utils import send_action
-from utils.paginate import paginate
-from utils.views import json_redirect, json_render
+from utils.views import AjaxDeleteView, AjaxCreateView, AjaxUpdateView
 
 
-@login_required
-def list(request):
-    paginator, queryset = paginate(
-        request, Person.objects.all(), settings.PHOTOS_PER_PAGE)
-    context = {'paginator': paginator, 'person_list': queryset}
-    return render(request, 'photos/person_list.html', context)
+class List(ListView):
+    model = Person
+    paginate_by = settings.PHOTOS_PER_PAGE
+    template_name = 'photos/person_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = _('People')
+        return context
 
 
-@login_required
-def detail(request, pk):
-    person = get_object_or_404(Person, pk=pk)
-    paginator, queryset = paginate(
-        request, get_photo_queryset(person=person), settings.PHOTOS_PER_PAGE)
-    context = {
-        'person': person,
-        'paginator': paginator,
-        'photo_list': queryset,
-        'back_link': {'url': reverse('people'), 'title': _('People')}
-    }
-    return render(request, 'photos/person_detail.html', context)
+class Detail(ListView):
+    paginate_by = settings.PHOTOS_PER_PAGE
+    actions_template_name = 'photos/_person_actions.html'
+    template_name = 'photos/photo_list.html'
+
+    def get_person(self):
+        return get_object_or_404(Person, pk=self.kwargs['pk'])
+
+    def get_queryset(self):
+        self.person = self.get_person()
+        return self.person.photo_set.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['back_link'] = reverse('people'), _('People')
+        context['page_title'] = self.person.name
+        context['person'] = self.person
+        return context
 
 
-@permission_required('photos.delete_person')
-def delete(request, pk):
-    person = get_object_or_404(Person, pk=pk)
-    if request.POST:
-        person.delete()
-        return json_redirect(request, reverse('people'))
-    context = {
-        'person': person,
-        'form_title': _('Delete Person'),
-        'form_submit': _('Delete'),
-        'form_messages': (
+class Create(AjaxCreateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = PersonNameForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Create Person')
+        context['form_submit'] = _('Save')
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        send_action(self.request.user, 'created the person', target=self.object)
+        return response
+
+
+class Rename(AjaxUpdateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = PersonNameForm
+    model = Person
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Edit Person')
+        context['form_submit'] = _('Save')
+        return context
+
+
+class Delete(AjaxDeleteView):
+    template_name = 'photos/ajax_form.html'
+    model = Person
+    success_url = reverse_lazy('people')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Delete Person')
+        context['form_submit'] = _('Delete')
+        context['form_messages'] = (
             _('Are you sure you want to delete this person?'),
             _('This will also remove tags from any photos.')
         )
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+        return context
 
 
-@permission_required('photos.add_person')
-def create(request):
-    form = PersonRenameForm(request.POST or None)
-    if form.is_valid():
-        person = form.save()
-        send_action(
-            request.user,
-            'created the person',
-            target=person)
-        return json_redirect(request, person.get_absolute_url())
-    context = {
-        'form': form,
-        'form_title': _('Create Person'),
-        'form_submit': _('Save')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
-
-
-@permission_required('photos.edit_person')
-def rename(request, pk):
-    person = get_object_or_404(Person, pk=pk)
-    form = PersonRenameForm(request.POST or None, instance=person)
-    if form.is_valid():
-        person = form.save()
-        return json_redirect(request, person.get_absolute_url())
-    context = {
-        'form': form,
-        'form_title': _('Rename Person'),
-        'form_submit': _('Save')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+list = login_required(List.as_view())
+detail = login_required(Detail.as_view())
+create = permission_required('photos.add_person')(Create.as_view())
+rename = permission_required('photos.edit_person')(Rename.as_view())
+delete = permission_required('photos.delete_person')(Delete.as_view())

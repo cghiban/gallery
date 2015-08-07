@@ -88,9 +88,9 @@ class ImageHandler:
         self.storage.save(self.file_field.name, self.temp)
 
 
-def friendly_filename(filename):
+def friendly_name(filename):
     """
-    Creates a 'friendly' filename based on the given filename:
+    Creates a 'friendly' name based on the given filename:
     - Get everything after the last slash
     - Remove the extension
     - Convert slashes, underscores, bracket, pound to space

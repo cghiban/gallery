@@ -1,134 +1,133 @@
-import os
-import tempfile
-import zipfile
+from tempfile import NamedTemporaryFile
+from zipfile import ZipFile
+from os import path
 
-from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
+from django.views.generic import ListView, DetailView
 
 from apps.photos.forms import AlbumForm, AlbumMergeForm
 from apps.photos.models import Album, Location
-from apps.photos.views import get_photo_queryset
-from utils.paginate import paginate
-from utils.views import json_redirect, json_render
+from utils.views import AjaxCreateView, AjaxUpdateView, AjaxDeleteView
 
 
-def get_back_link(request, album, **kwargs):
-    """
-    Determines the back link for an album.
-    - If the URL is /locations/<id>/albums/<id>/ then go back to the location.
-    - If the URL is /albums/<id>/ then go back to the album list.
-    """
-    if 'location_pk' in kwargs:
-        location = get_object_or_404(Location, pk=kwargs.get('location_pk'))
-        return {
-            'url': location.get_absolute_url(),
-            'title': location.name
-        }
-    return {
-        'url': reverse('albums'),
-        'title': _('Albums')
-    }
+class List(ListView):
+    model = Album
+    paginate_by = settings.PHOTOS_PER_PAGE
+    template_name = 'photos/album_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = _('Albums')
+        return context
 
 
-@login_required
-def list(request):
-    paginator, queryset = paginate(
-        request, Album.objects.all(), settings.PHOTOS_PER_PAGE)
-    context = {'paginator': paginator, 'album_list': queryset}
-    return render(request, 'photos/album_list.html', context)
+class Detail(ListView):
+    paginate_by = settings.PHOTOS_PER_PAGE
+    actions_template_name = 'photos/_album_actions.html'
+    template_name = 'photos/photo_list.html'
+
+    def get_album(self):
+        return get_object_or_404(Album, pk=self.kwargs['pk'])
+
+    def get_queryset(self):
+        self.album = self.get_album()
+        return self.album.photo_set.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        back_link = reverse('albums'), _('Albums')
+        location = None
+        if 'location_pk' in self.kwargs:
+            location = get_object_or_404(Location, pk=self.kwargs.get('location_pk'))
+            back_link = reverse('location', kwargs={'pk': location.pk}), location.name
+
+        context['location'] = location
+        context['back_link'] = back_link
+        context['page_title'] = self.album.name
+        context['album'] = self.album
+        return context
 
 
-@login_required
-def detail(request, pk, **kwargs):
-    album = get_object_or_404(Album, pk=pk)
-    paginator, queryset = paginate(
-        request, get_photo_queryset(album=album), settings.PHOTOS_PER_PAGE)
-    context = {
-        'location_pk': kwargs.get('location_pk'),
-        'album': album,
-        'paginator': paginator,
-        'photo_list': queryset,
-        'back_link': get_back_link(request, album, **kwargs)
-    }
-    return render(request, 'photos/album_detail.html', context)
+class Create(AjaxCreateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = AlbumForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Create Album')
+        context['form_submit'] = _('Save')
+        return context
 
 
-@permission_required('photos.add_album')
-def create(request):
-    form = AlbumForm(request.POST or None)
-    if form.is_valid():
-        album = form.save()
-        return json_redirect(request, album.get_absolute_url())
-    context = {
-        'form': form,
-        'form_title': _('Create Album'),
-        'form_submit': _('Save')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+class Edit(AjaxUpdateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = AlbumForm
+    model = Album
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Edit Album')
+        context['form_submit'] = _('Save')
+        return context
 
 
-@permission_required('photos.edit_album')
-def edit(request, pk):
-    album = get_object_or_404(Album, pk=pk)
-    form = AlbumForm(request.POST or None, instance=album)
-    if form.is_valid():
-        album = form.save()
-        return json_redirect(request, album.get_absolute_url())
-    context = {
-        'form': form,
-        'form_title': _('Edit Album'),
-        'form_submit': _('Save')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+class Merge(AjaxUpdateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = AlbumMergeForm
+    model = Album
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Merge Album')
+        context['form_submit'] = _('Merge')
+        return context
 
 
-@permission_required('photos.delete_album')
-def delete(request, pk):
-    album = get_object_or_404(Album, pk=pk)
-    if request.POST:
-        album.delete()
-        return json_redirect(request, reverse('albums'))
-    context = {
-        'album': album,
-        'form_title': _('Delete Album'),
-        'form_submit': _('Delete'),
-        'form_messages': (
+class Delete(AjaxDeleteView):
+    template_name = 'photos/ajax_form.html'
+    model = Album
+    success_url = reverse_lazy('albums')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Delete Album')
+        context['form_submit'] = _('Delete')
+        context['form_messages'] = (
             _('Are you sure you want to delete this album?'),
             _('This will also delete all the photos in the album.')
         )
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+        return context
 
 
-@permission_required('photos.edit_album')
-def merge(request, pk):
-    album = get_object_or_404(Album, pk=pk)
-    form = AlbumMergeForm(request.POST or None, instance=album)
-    if form.is_valid():
-        album = form.save()
-        return json_redirect(request, album.get_absolute_url())
-    context = {
-        'album': album,
-        'form': form,
-        'form_title': _('Merge Album'),
-        'form_submit': _('Merge')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+class Download(DetailView):
+    model = Album
+
+    def get_zip_file(self):
+        zip_file = NamedTemporaryFile()
+        with ZipFile(zip_file, 'w') as handle:
+            for photo in self.object.photo_set.all():
+                full_path = path.join(settings.MEDIA_ROOT, photo.file.name)
+                handle.write(full_path, photo.file.name.split('/')[-1])
+        zip_file.seek(0)
+        return zip_file
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        response = HttpResponse(self.get_zip_file().read(), content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename={}.zip'.format(self.object.name)
+        return response
 
 
-@login_required
-def download(request, pk):
-    album = get_object_or_404(Album, pk=pk)
-    temp_zip = tempfile.NamedTemporaryFile()
-    with zipfile.ZipFile(temp_zip, 'w') as zipf:
-        for photo in album.photo_set.all():
-            full_path = os.path.join(settings.MEDIA_ROOT, photo.file.name)
-            zipf.write(full_path, '%s' % (photo.file.name.split('/')[-1]))
-    temp_zip.seek(0)
-    response = HttpResponse(temp_zip.read(), content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename=%s.zip' % album.name
-    return response
+list = login_required(List.as_view())
+detail = login_required(Detail.as_view())
+create = permission_required('photos.add_album')(Create.as_view())
+edit = permission_required('photos.edit_album')(Edit.as_view())
+merge = permission_required('photos.edit_album')(Merge.as_view())
+delete = permission_required('photos.delete_album')(Delete.as_view())
+download = login_required(Download.as_view())

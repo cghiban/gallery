@@ -4,185 +4,169 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView, View
 
-from apps.photos.forms import PhotoMoveForm, PhotoRenameForm, PhotoTagForm
-from apps.photos.models import Person, Photo
+from apps.photos.forms import PhotoMoveForm, PhotoNameForm, PhotoTagForm
+from apps.photos.models import Person, Photo, Location
 from apps.photos.utils import rotate_image
-from apps.photos.views import get_photo_queryset
-from utils.views import json_redirect, json_render
+from apps.photos.views import get_search_queryset
+from utils.views import AjaxDeleteView, AjaxUpdateView, AjaxFormMixin
 
 
-def get_back_link(request, photo, **kwargs):
-    """
-    Determines the back link for a photo.
-    - If the URL is /locations/<id>/albums/<id>/photos/<id>/ then go back to
-      the album within the context of location.
-    - If the URL is /people/<id>/photos/<id> then go back to the person.
-    - If the URL is /search/<query>/photos/<id> then go back to the search.
-    - If the URL is /photos/<id> then go back to the album.
-    """
-    if 'person_pk' in kwargs:
-        person = get_object_or_404(Person, pk=kwargs['person_pk'])
-        return {
-            'url': reverse('person', kwargs={'pk': person.pk}),
-            'title': person.name
+class Detail(DetailView):
+    model = Photo
+    template_name = 'photos/photo_detail.html'
+    person = None
+    location = None
+    query = None
+
+    def paginate(self, queryset, obj):
+        """
+        Figure out where this photo is located in the queryset (sorted by id). Queryset can be variable
+        based on how the user accessed the photo. Return a simple paginator dictionary.
+        """
+        values_list = list(queryset.order_by('name').values_list('id', flat=True))
+        index = values_list.index(obj.id)
+
+        def build_url(pk):
+            newkwargs = self.kwargs.copy()
+            newkwargs['pk'] = pk
+            return reverse('photo', kwargs=newkwargs)
+
+        next_url, prev_url = None, None
+        if len(values_list) > 1:
+            if obj.id != values_list[0]:
+                prev_url = build_url(values_list[index - 1])
+            if obj.id != values_list[-1]:
+                next_url = build_url(values_list[index + 1])
+
+        self.paginator = {
+            'has_next': (next_url is not None),
+            'next_url': next_url,
+            'has_previous': (prev_url is not None),
+            'previous_url': prev_url,
+            'index': (index + 1),
+            'count': len(values_list)
         }
-    if 'location_pk' in kwargs:
-        new_kwargs = {
-            'pk': photo.album.pk,
-            'location_pk': kwargs['location_pk']
-        }
-        return {
-            'url': reverse('album', kwargs=new_kwargs),
-            'title': photo.album.name
-        }
-    if 'query' in kwargs:
-        return {
-            'url': reverse('results', kwargs={'query': kwargs['query']}),
-            'title': _('Results')
-        }
-    return {
-        'url': reverse('album', kwargs={'pk': photo.album.pk}),
-        'title': photo.album.name
-    }
+        return obj
+
+    def get_object(self, queryset=None):
+        """
+        Get the photo object, set the proper "back" link, and create the paginator object.
+        """
+        obj = get_object_or_404(Photo, pk=self.kwargs[self.pk_url_kwarg])
+
+        if 'query' in self.kwargs:
+            self.back_link = reverse('results', kwargs={'query': self.kwargs['query']}), _('Results')
+            self.paginate(get_search_queryset(self.kwargs['query']), obj)
+            return obj
+
+        if 'person_pk' in self.kwargs:
+            self.person = get_object_or_404(Person, pk=self.kwargs['person_pk'])
+            self.back_link = reverse('person', kwargs={'pk': self.person.pk}), self.person.name
+            self.paginate(self.person.photo_set, obj)
+            return obj
+
+        if 'location_pk' in self.kwargs:
+            self.location = get_object_or_404(Location, pk=self.kwargs.get('location_pk'))
+            album = get_object_or_404(self.location.album_set, pk=self.kwargs.get('location_pk'))
+            self.back_link = reverse('album', kwargs={'pk': album.pk, 'location_pk': self.location.pk}), album.name
+            self.paginate(album.photo_set, obj)
+            return obj
+
+        self.back_link = reverse('album', kwargs={'pk': obj.album.pk}), obj.album.name
+        self.paginate(obj.album.photo_set, obj)
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.query
+        context['person'] = self.person
+        context['location'] = self.location
+        context['back_link'] = self.back_link
+        context['paginator'] = self.paginator
+        return context
 
 
-def get_paginator(request, photo, **kwargs):
-    """
-    This is a big messy function that I should probably revisit some day. Here
-    is what it tries to accomplish:
-    We need to figure out where this photo is (index) in the queryset. The
-    problem is that queryset is variable. If the user came from an album, then
-    the queryset is the album's list of photos. If the user came from a person,
-    then the queryset is the person's list of photos. If the user came from
-    search, then the queryset is the search results list. This also impacts the
-    'next' and 'previous' URLs which need to know about the current context as
-    well. So that's what this does. Fancy.
-    """
-    if 'person_pk' in kwargs:
-        person = get_object_or_404(Person, pk=kwargs['person_pk'])
-        queryset = get_photo_queryset(person=person)
-    elif 'query' in kwargs:
-        queryset = get_photo_queryset(query=kwargs['query'])
-    else:
-        queryset = get_photo_queryset(album=photo.album)
+class Move(AjaxUpdateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = PhotoMoveForm
+    model = Photo
 
-    # We really only need the list of sorted names and IDs.
-    values_list = list(queryset.order_by('name').values_list('id', 'name'))
-    index = values_list.index((photo.pk, photo.name))
-
-    def build_url(pk):
-        url_kwargs = kwargs.copy()
-        url_kwargs['pk'] = pk
-        return reverse('photo', kwargs=url_kwargs)
-
-    next_url, prev_url = None, None
-    if len(values_list) > 1:
-        if index != len(values_list) - 1:  # not last
-            next_url = build_url(values_list[index + 1][0])
-        if index != 0:  # not first
-            prev_url = build_url(values_list[index - 1][0])
-
-    return {
-        'has_next': (next_url is not None),
-        'next_url': next_url,
-        'has_previous': (prev_url is not None),
-        'previous_url': prev_url,
-        'index': (index + 1),
-        'count': len(values_list)
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Move Photo')
+        context['form_submit'] = _('Save')
+        return context
 
 
-@login_required
-def detail(request, pk, **kwargs):
-    photo = get_object_or_404(Photo, pk=pk)
-    context = {
-        'photo': photo,
-        'back_link': get_back_link(request, photo, **kwargs),
-        'paginator': get_paginator(request, photo, **kwargs),
-    }
-    return render(request, 'photos/photo_detail.html', context)
+class Rename(AjaxUpdateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = PhotoNameForm
+    model = Photo
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Rename Photo')
+        context['form_submit'] = _('Save')
+        return context
 
 
-@permission_required('photos.edit_photo')
-def rotate(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    if request.POST:
+class Tag(AjaxUpdateView):
+    template_name = 'photos/ajax_form.html'
+    form_class = PhotoTagForm
+    model = Photo
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Tag Photo')
+        context['form_submit'] = _('Save')
+        return context
+
+
+class Rotate(AjaxFormMixin, View):
+    def post(self, request, *args, **kwargs):
+        photo = get_object_or_404(Photo, pk=kwargs['pk'])
         rotate_image(photo.file)
         for thumb in photo.thumbnail_set.all():
             rotate_image(thumb.file)
-    return json_redirect(request, photo.get_absolute_url())
+        return self.json(url=photo.get_absolute_url())
 
 
-@permission_required('photos.edit_photo')
-def move(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    form = PhotoMoveForm(request.POST or None, instance=photo)
-    if form.is_valid():
-        photo = form.save()
-        return json_redirect(request, photo.get_absolute_url())
-    context = {
-        'form': form,
-        'form_title': _('Move Photo'),
-        'form_submit': _('Save')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+class Delete(AjaxDeleteView):
+    template_name = 'photos/ajax_form.html'
+    model = Photo
 
+    def get_success_url(self):
+        return self.object.album.get_absolute_url()
 
-@permission_required('photos.edit_photo')
-def rename(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    form = PhotoRenameForm(request.POST or None, instance=photo)
-    if form.is_valid():
-        photo = form.save()
-        return json_redirect(request, photo.get_absolute_url())
-    context = {
-        'form': form,
-        'form_title': _('Rename Photo'),
-        'form_submit': _('Save')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
-
-
-@permission_required('photos.edit_photo')
-def tag(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    form = PhotoTagForm(request.POST or None, instance=photo)
-    if form.is_valid():
-        photo = form.save()
-        return json_redirect(request, photo.get_absolute_url())
-    context = {
-        'form': form,
-        'form_title': _('Tag Photo'),
-        'form_submit': _('Save')
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
-
-
-@permission_required('photos.delete_photo')
-def delete(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    if request.POST:
-        next_url = photo.album.get_absolute_url()
-        photo.delete()
-        return json_redirect(request, next_url)
-    context = {
-        'photo': photo,
-        'form_title': _('Delete Photo'),
-        'form_submit': _('Delete'),
-        'form_messages': (
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _('Delete Photo')
+        context['form_submit'] = _('Delete')
+        context['form_messages'] = (
             _('Are you sure you want to delete this photo?'),
         )
-    }
-    return json_render(request, 'photos/ajax_form.html', context)
+        return context
 
 
-@login_required
-def download(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    file_data = photo.file.file.read()
-    mimetype = mimetypes.guess_type(photo.file.name, strict=False)[0]
-    response = HttpResponse(file_data, content_type=mimetype)
-    response['Content-Disposition'] = 'attachment; filename=%s' % photo.file.name.split('/')[-1]
-    return response
+class Download(DetailView):
+    model = Photo
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        file_data = self.object.file.file.read()
+        mimetype = mimetypes.guess_type(self.object.file.name, strict=False)[0]
+        response = HttpResponse(file_data, content_type=mimetype)
+        response['Content-Disposition'] = 'attachment; filename={}'.format(self.object.file.name.split('/')[-1])
+        return response
+
+
+detail = login_required(Detail.as_view())
+move = permission_required('photos.edit_photo')(Move.as_view())
+rename = permission_required('photos.edit_photo')(Rename.as_view())
+tag = permission_required('photos.edit_photo')(Tag.as_view())
+rotate = permission_required('photos.edit_photo')(Rotate.as_view())
+delete = permission_required('photos.delete_album')(Delete.as_view())
+download = login_required(Download.as_view())

@@ -43,7 +43,7 @@
 <div id="toolbar" class="header">
     <div class="back">
         {% if back_link %}
-            <a href="{{ back_link.url }}" data-navigate="up">&larr;&nbsp;{{ back_link.title }}</a>
+            <a href="{{ back_link.0 }}" data-navigate="up">&larr;&nbsp;{{ back_link.1 }}</a>
         {% endif %}
     </div>
     {% block pagination %}

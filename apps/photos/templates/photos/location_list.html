@@ -6,17 +6,14 @@
 {% block header %}{% trans 'Locations' %}{% endblock %}
 
 {% block actions %}
-    <ul class="actions location-actions">
-        {% spaceless %}
+    <ul class="actions">
         {% if perms.photos.add_location %}
-           <li><a href="{% url 'location_create' %}" data-modal="form">{% trans 'Create Location' %}</a></li>
+            <li><a href="{% url 'location_create' %}" data-modal="form">{% trans 'Create Location' %}</a></li>
         {% endif %}
-        {% endspaceless %}
     </ul>
 {% endblock %}
 
 {% block content %}
-{% spaceless %}
     <ul class="albums">
         {% for location in location_list %}
             <li>
@@ -30,5 +27,4 @@
             </li>
         {% endfor %}
     </ul>
-{% endspaceless %}
 {% endblock %}

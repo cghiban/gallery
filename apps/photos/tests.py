@@ -7,14 +7,15 @@ import tempfile
 from django.db.models.fields.files import ImageFieldFile
 from django.test import TestCase, Client, override_settings
 from django.core.urlresolvers import reverse
+
 from django.core.files import File
+
 from django.contrib.auth.models import User
+
 from django.core.management import call_command
 
 from .models import Location, Person, Album, Photo, Thumbnail
-
-from apps.photos.utils import friendly_filename
-
+from apps.photos.utils import friendly_name
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -46,7 +47,7 @@ class SuperuserTest(TestCase):
         self.client.login(username='tim', password='secret')
 
 
-class LocationViews(SuperuserTest):
+class LocationListView(SuperuserTest):
     def test_list(self):
         """
         Test that the location list view works properly.
@@ -55,6 +56,8 @@ class LocationViews(SuperuserTest):
         self.assertTrue('location_list' in response.context)
         self.assertTrue('paginator' in response.context)
 
+
+class LocationCreateView(SuperuserTest):
     def test_create(self):
         """
         Test that location creation works properly.
@@ -66,6 +69,8 @@ class LocationViews(SuperuserTest):
         data = {'name': 'location1'}
         self.json_post_value(reverse('location_create'), 'url', data)
 
+
+class LocationDetailView(SuperuserTest):
     def test_detail(self):
         """
         Test that the location detail view works properly.
@@ -75,9 +80,10 @@ class LocationViews(SuperuserTest):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('location' in response.context)
         self.assertTrue('paginator' in response.context)
-        self.assertTrue('back_link' in response.context)
         self.assertTrue('album_list' in response.context)
 
+
+class LocationRenameView(SuperuserTest):
     def test_rename(self):
         """
         Test that the location rename view works properly.
@@ -94,6 +100,8 @@ class LocationViews(SuperuserTest):
             reverse('location_rename', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Location.objects.get(pk=1).name, 'location2')
 
+
+class LocationDeleteView(SuperuserTest):
     def test_delete(self):
         Location.objects.create(name='location1')
         self.json_get_value(
@@ -105,7 +113,7 @@ class LocationViews(SuperuserTest):
         self.assertEqual(Location.objects.count(), 0)
 
 
-class PersonViews(SuperuserTest):
+class PersonListView(SuperuserTest):
     def test_list(self):
         """
         Test that the person list view works properly.
@@ -114,6 +122,8 @@ class PersonViews(SuperuserTest):
         self.assertTrue('person_list' in response.context)
         self.assertTrue('paginator' in response.context)
 
+
+class PersonCreateView(SuperuserTest):
     def test_create(self):
         """
         Test that person creation works properly.
@@ -125,6 +135,8 @@ class PersonViews(SuperuserTest):
         data = {'name': 'person1'}
         self.json_post_value(reverse('person_create'), 'url', data)
 
+
+class PersonDetailView(SuperuserTest):
     def test_detail(self):
         """
         Test that the person detail view works properly.
@@ -134,9 +146,10 @@ class PersonViews(SuperuserTest):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('person' in response.context)
         self.assertTrue('paginator' in response.context)
-        self.assertTrue('back_link' in response.context)
         self.assertTrue('photo_list' in response.context)
 
+
+class PersonRenameView(SuperuserTest):
     def test_rename(self):
         """
         Test that the person rename view works properly.
@@ -153,6 +166,8 @@ class PersonViews(SuperuserTest):
             reverse('person_rename', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Person.objects.get(pk=1).name, 'person2')
 
+
+class PersonDeleteView(SuperuserTest):
     def test_delete(self):
         Person.objects.create(name='person1')
         self.assertEqual(Person.objects.count(), 1)
@@ -162,7 +177,7 @@ class PersonViews(SuperuserTest):
         self.assertEqual(Person.objects.count(), 0)
 
 
-class AlbumViews(SuperuserTest):
+class AlbumListView(SuperuserTest):
     def test_list(self):
         """
         Test that the album list view works properly.
@@ -171,6 +186,8 @@ class AlbumViews(SuperuserTest):
         self.assertTrue('album_list' in response.context)
         self.assertTrue('paginator' in response.context)
 
+
+class AlbumCreateView(SuperuserTest):
     def test_create(self):
         """
         Test that album creation works properly.
@@ -182,6 +199,8 @@ class AlbumViews(SuperuserTest):
         data = {'name': 'album1'}
         self.json_post_value(reverse('album_create'), 'url', data)
 
+
+class AlbumDetailView(SuperuserTest):
     def test_detail(self):
         """
         Test that the album detail view works properly.
@@ -191,7 +210,6 @@ class AlbumViews(SuperuserTest):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('album' in response.context)
         self.assertTrue('paginator' in response.context)
-        self.assertTrue('back_link' in response.context)
         self.assertTrue('photo_list' in response.context)
 
     def test_detail_location(self):
@@ -205,10 +223,10 @@ class AlbumViews(SuperuserTest):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('album' in response.context)
         self.assertTrue('paginator' in response.context)
-        self.assertTrue('back_link' in response.context)
         self.assertTrue('photo_list' in response.context)
-        self.assertEqual(response.context['back_link']['title'], 'location1')
 
+
+class AlbumEditView(SuperuserTest):
     def test_edit(self):
         """
         Test that the album edit view works properly.
@@ -225,6 +243,8 @@ class AlbumViews(SuperuserTest):
             reverse('album_edit', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Album.objects.get(pk=1).name, 'album2')
 
+
+class AlbumDeleteView(SuperuserTest):
     def test_delete(self):
         Album.objects.create(name='album1')
         self.assertEqual(Album.objects.count(), 1)
@@ -257,7 +277,6 @@ class PhotoViews(SuperuserTest):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('photo' in response.context)
         self.assertTrue('paginator' in response.context)
-        self.assertTrue('back_link' in response.context)
         return response
 
     def test_detail(self):
@@ -290,7 +309,6 @@ class PhotoViews(SuperuserTest):
         self.create_data()
         kwargs_dict = {'pk': 1, 'query': 'q=photo'}
         response = self.get_photo_detail(kwargs_dict)
-        self.assertEqual(response.context['back_link']['title'], 'Results')
 
     def test_detail_person(self):
         """
@@ -299,7 +317,6 @@ class PhotoViews(SuperuserTest):
         self.create_data()
         kwargs_dict = {'pk': 1, 'person_pk': 1}
         response = self.get_photo_detail(kwargs_dict)
-        self.assertEqual(response.context['back_link']['title'], 'person1')
 
     def test_detail_location(self):
         """
@@ -308,7 +325,6 @@ class PhotoViews(SuperuserTest):
         self.create_data()
         kwargs_dict = {'pk': 1, 'location_pk': 1, 'album_pk': 1}
         response = self.get_photo_detail(kwargs_dict)
-        self.assertEqual(response.context['back_link']['title'], 'album1')
 
     def test_rotate(self):
         """
@@ -325,7 +341,7 @@ class PhotoViews(SuperuserTest):
         self.create_data()
         self.assertEqual(Photo.objects.get(pk=1).name, 'photo1')
         # invalid photo, redisplay
-        data = {'name': 'dd'*500} # name is too long
+        data = {'name': 'dd' * 500}  # name is too long
         self.json_post_value(
             reverse('photo_rename', kwargs=dict(pk=1)), 'html', data)
         # valid photo, redirect
@@ -419,9 +435,9 @@ class UtilsTest(TestCase):
             'path/family photo # 1  .jpg': 'family photo 1',
         }
         for input, output in scenarios.items():
-            result = friendly_filename(input)
+            result = friendly_name(input)
             self.assertEqual(result, output)
-        self.assertEqual('A' * 200, friendly_filename('A' * 201))
+        self.assertEqual('A' * 200, friendly_name('A' * 201))
 
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
