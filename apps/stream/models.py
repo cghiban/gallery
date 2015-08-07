@@ -60,7 +60,7 @@ class Action(models.Model):
                 return '{actor} {verb} {object} {join} {target}'.format(**ctx)
             return '{actor} {verb} {target}'.format(**ctx)
         if self.action_object:
-            return '{actor} {verb} {action_object}'.format(**ctx)
+            return '{actor} {verb} {object}'.format(**ctx)
         return '{actor} {verb}'.format(**ctx)
 
 
