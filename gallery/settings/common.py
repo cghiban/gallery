@@ -77,15 +77,6 @@ LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'accounts:login'
 LOGOUT_URL = 'accounts:logout'
 
-### Cache settings
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': path.join(BASE_DIR, 'tmp', 'cache'),
-    }
-}
-
 ### Template settings
 
 TEMPLATE_LOADERS = (
