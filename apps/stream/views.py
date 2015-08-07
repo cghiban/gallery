@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from stream.models import Action
+from apps.stream.models import Action
 
 
 @login_required

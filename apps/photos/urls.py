@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-from photos import views
-from photos.views import album, photo, person, location
+from apps.photos import views
+from apps.photos.views import album, photo, person, location
 
 urlpatterns = [
     url(r'^upload/$', views.upload, name='upload'),

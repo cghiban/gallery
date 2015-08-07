@@ -1,7 +1,8 @@
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from stream.models import Action
+
+from apps.stream.models import Action
 
 
 class StreamViews(TestCase):
@@ -29,6 +30,7 @@ class StreamViews(TestCase):
         response = client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('action_list' in response.context)
+
 
 class StreamModel(TestCase):
 

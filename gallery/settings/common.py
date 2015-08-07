@@ -28,9 +28,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'accounts',
-    'photos',
-    'stream',
+    'apps.accounts',
+    'apps.photos',
+    'apps.stream',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -62,7 +62,7 @@ USE_I18N = False
 USE_L10N = False
 
 LOCALE_PATHS = (
-    path.join(BASE_DIR, 'locale'),
+    path.join(BASE_DIR, 'gallery', 'locale'),
 )
 
 ### Session settings

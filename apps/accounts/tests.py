@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.auth import SESSION_KEY
 from django.utils.http import urlsafe_base64_encode
 
-from accounts.forms import PasswordResetForm, RegisterForm, \
+from apps.accounts.forms import PasswordResetForm, RegisterForm, \
     AuthenticationForm, ProfileForm, PasswordChangeForm, SetPasswordForm
 
 

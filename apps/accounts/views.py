@@ -10,7 +10,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login as login_view, logout_then_login
 
-from accounts.forms import ProfileForm, RegisterForm, AuthenticationForm, \
+from apps.accounts.forms import ProfileForm, RegisterForm, AuthenticationForm, \
     PasswordResetForm, SetPasswordForm, PasswordChangeForm
 
 

@@ -4,10 +4,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 
-from photos.forms import PersonRenameForm
-from photos.models import Person
-from photos.views import get_photo_queryset
-from stream.utils import send_action
+from apps.photos.forms import PersonRenameForm
+from apps.photos.models import Person
+from apps.photos.views import get_photo_queryset
+from apps.stream.utils import send_action
 from utils.paginate import paginate
 from utils.views import json_redirect, json_render
 

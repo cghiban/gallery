@@ -9,9 +9,9 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
-from photos.forms import AlbumForm, AlbumMergeForm
-from photos.models import Album, Location
-from photos.views import get_photo_queryset
+from apps.photos.forms import AlbumForm, AlbumMergeForm
+from apps.photos.models import Album, Location
+from apps.photos.views import get_photo_queryset
 from utils.paginate import paginate
 from utils.views import json_redirect, json_render
 

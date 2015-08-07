@@ -1,4 +1,4 @@
-from stream.models import Action
+from apps.stream.models import Action
 
 
 def send_action(user, verb, action_object=None, join=None, target=None):

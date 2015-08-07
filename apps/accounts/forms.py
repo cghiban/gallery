@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, \
     SetPasswordForm as BaseSetPasswordForm, \
     PasswordChangeForm as BasePasswordChangeForm
 
-from accounts.utils import get_admin_group
+from apps.accounts.utils import get_admin_group
 
 
 User = get_user_model()

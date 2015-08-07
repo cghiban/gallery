@@ -4,9 +4,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 
-from photos.forms import LocationRenameForm
-from photos.models import Location
-from stream.utils import send_action
+from apps.photos.forms import LocationRenameForm
+from apps.photos.models import Location
+from apps.stream.utils import send_action
 from utils.paginate import paginate
 from utils.views import json_redirect, json_render
 

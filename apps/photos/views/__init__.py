@@ -5,9 +5,9 @@ from django.db.models import Q
 from django.http import QueryDict
 from django.shortcuts import redirect, render
 
-from photos.forms import UploadForm, SearchForm
-from photos.models import Photo
-from stream.utils import send_action
+from apps.photos.forms import UploadForm, SearchForm
+from apps.photos.models import Photo
+from apps.stream.utils import send_action
 from utils.paginate import paginate
 
 

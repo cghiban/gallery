@@ -13,7 +13,7 @@ from django.core.management import call_command
 
 from .models import Location, Person, Album, Photo, Thumbnail
 
-from photos.utils import friendly_filename
+from apps.photos.utils import friendly_filename
 
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -243,7 +243,7 @@ class PhotoViews(SuperuserTest):
         shutil.rmtree(MEDIA_ROOT)
 
     def create_data(self):
-        imgfile = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+        imgfile = File(open('apps/photos/fixtures/milkyway.jpg', 'rb'))
         self.person = Person.objects.create(name='person1')
         self.location = Location.objects.create(name='location1')
         self.album = self.location.album_set.create(name='album1')
@@ -273,7 +273,7 @@ class PhotoViews(SuperuserTest):
         Test that the photo detail view works properly with pagination.
         """
         self.create_data()
-        imgfile = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+        imgfile = File(open('apps/photos/fixtures/milkyway.jpg', 'rb'))
         self.album.photo_set.create(name='photo2', file=imgfile)
         self.album.photo_set.create(name='photo3', file=imgfile)
         kwargs_dict = {'pk': 2}
@@ -352,7 +352,7 @@ class ModelTest(TestCase):
         shutil.rmtree(MEDIA_ROOT)
 
     def setUp(self):
-        imgfile = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+        imgfile = File(open('apps/photos/fixtures/milkyway.jpg', 'rb'))
         self.person = Person.objects.create(name='person1')
         self.location = Location.objects.create(name='location1')
         self.album = self.location.album_set.create(name='album1')
@@ -437,7 +437,7 @@ class TestCleanupPhotosCommand(TestCase):
         self.album = Album.objects.create(name='album1')
         for x in range(1, 5):
             p = self.album.photo_set.create(name='photo%s' % x)
-            p.file = File(open('photos/fixtures/milkyway.jpg', 'rb'))
+            p.file = File(open('apps/photos/fixtures/milkyway.jpg', 'rb'))
             p.save()
             p.thumbnail('200x200-fit')
         for x in range(1, 4):

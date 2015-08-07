@@ -6,10 +6,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from photos.forms import PhotoMoveForm, PhotoRenameForm, PhotoTagForm
-from photos.models import Person, Photo
-from photos.utils import rotate_image
-from photos.views import get_photo_queryset
+from apps.photos.forms import PhotoMoveForm, PhotoRenameForm, PhotoTagForm
+from apps.photos.models import Person, Photo
+from apps.photos.utils import rotate_image
+from apps.photos.views import get_photo_queryset
 from utils.views import json_redirect, json_render
 
 

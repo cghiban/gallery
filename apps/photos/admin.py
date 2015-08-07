@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from photos.models import Person, Location, Album, Photo, Thumbnail
+from apps.photos.models import Person, Location, Album, Photo, Thumbnail
 
 
 class NameOnlyAdmin(admin.ModelAdmin):

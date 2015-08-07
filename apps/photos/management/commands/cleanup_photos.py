@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from photos.models import Photo, Thumbnail
+from apps.photos.models import Photo, Thumbnail
 
 
 class Command(BaseCommand):

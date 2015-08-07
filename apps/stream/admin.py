@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from stream.models import Action
+from apps.stream.models import Action
 
 
 class ActionAdmin(admin.ModelAdmin):

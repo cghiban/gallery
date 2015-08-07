@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.dates import MONTHS
 
 from utils.uploads import get_unique_upload_path
-from photos.utils import generate_thumbnail
+from apps.photos.utils import generate_thumbnail
 
 MONTH_CHOICES = [(key, value) for key, value in MONTHS.items()]
 

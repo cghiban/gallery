@@ -2,8 +2,8 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.forms.models import modelform_factory
 
-from photos.models import Album, Photo, Location, Person
-from photos.utils import friendly_filename
+from apps.photos.models import Album, Photo, Location, Person
+from apps.photos.utils import friendly_filename
 from utils.uploads import file_allowed
 
 
