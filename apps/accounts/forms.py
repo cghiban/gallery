@@ -18,8 +18,8 @@ class ProfileForm(forms.ModelForm):
     User form that contains first name, last name, and email.
     """
     error_messages = {
-        'duplicate_email': _('This email address is already in use. Please \
-            supply a different email address.'),
+        'duplicate_email': _('This email address is already in use. Please '
+            'supply a different email address.'),
     }
 
     class Meta:
@@ -45,15 +45,14 @@ class RegisterForm(UserCreationForm):
     Also includes an authorization code that must be entered correctly.
     """
     error_messages = dict(UserCreationForm.error_messages, **{
-        'duplicate_email': _('This email address is already in use. Please \
-            supply a different email address.'),
+        'duplicate_email': _('This email address is already in use. Please '
+            'supply a different email address.'),
         'invalid_auth_code': _('Authorization code provided was not correct.'),
     })
 
     auth_code = forms.CharField(
         label=_('Authorization code'),
-        help_text=_('Required. Enter the authorization code to create \
-            your account.'))
+        help_text=_('Required. Enter the authorization code to create your account.'))
     email = forms.EmailField(
         help_text=_('Required. Used if you ever forget your password.'))
 

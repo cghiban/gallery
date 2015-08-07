@@ -2,7 +2,7 @@
 {% load humanize %}
 
 <span class="count">
-    {% blocktrans count counter=count with total=count|intcomma %}
+    {% blocktrans trimmed count counter=count with total=count|intcomma %}
         {{ total }} photo
     {% plural %}
         {{ total }} photos
