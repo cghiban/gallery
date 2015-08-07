@@ -58,6 +58,7 @@ class Detail(DetailView):
         obj = get_object_or_404(Photo, pk=self.kwargs[self.pk_url_kwarg])
 
         if 'query' in self.kwargs:
+            self.query = self.kwargs['query']
             self.back_link = reverse('results', kwargs={'query': self.kwargs['query']}), _('Results')
             self.paginate(get_search_queryset(self.kwargs['query']), obj)
             return obj

@@ -5,7 +5,9 @@ import shutil
 import tempfile
 
 from django.db.models.fields.files import ImageFieldFile
+
 from django.test import TestCase, Client, override_settings
+
 from django.core.urlresolvers import reverse
 
 from django.core.files import File
@@ -218,8 +220,8 @@ class AlbumDetailView(SuperuserTest):
         """
         loc = Location.objects.create(name='location1')
         loc.album_set.create(name='album1')
-        kwargs_dict = {'pk': 1, 'location_pk': 1}
-        response = self.client.get(reverse('album', kwargs=kwargs_dict))
+        kwargs = {'pk': 1, 'location_pk': 1}
+        response = self.client.get(reverse('album', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('album' in response.context)
         self.assertTrue('paginator' in response.context)
@@ -257,7 +259,7 @@ class AlbumDeleteView(SuperuserTest):
 
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
-class PhotoViews(SuperuserTest):
+class PhotoTest(SuperuserTest):
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(MEDIA_ROOT)
@@ -272,20 +274,14 @@ class PhotoViews(SuperuserTest):
         self.thumbnail = Thumbnail.objects.create(
             photo=self.photo, size='200x200-fit')
 
+
+class PhotoDetailView(PhotoTest):
     def get_photo_detail(self, kwargs):
         response = self.client.get(reverse('photo', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('photo' in response.context)
         self.assertTrue('paginator' in response.context)
         return response
-
-    def test_detail(self):
-        """
-        Test that the photo detail view works properly.
-        """
-        self.create_data()
-        kwargs_dict = {'pk': 1}
-        response = self.get_photo_detail(kwargs_dict)
 
     def test_detail_pagination(self):
         """
@@ -295,8 +291,8 @@ class PhotoViews(SuperuserTest):
         imgfile = File(open('apps/photos/fixtures/milkyway.jpg', 'rb'))
         self.album.photo_set.create(name='photo2', file=imgfile)
         self.album.photo_set.create(name='photo3', file=imgfile)
-        kwargs_dict = {'pk': 2}
-        response = self.get_photo_detail(kwargs_dict)
+        kwargs = {'pk': 2}
+        response = self.get_photo_detail(kwargs)
         self.assertEqual(response.context['paginator']['has_next'], True)
         self.assertEqual(response.context['paginator']['has_previous'], True)
         self.assertIsNotNone(response.context['paginator']['previous_url'])
@@ -307,25 +303,30 @@ class PhotoViews(SuperuserTest):
         Test that the photo detail view works properly from search.
         """
         self.create_data()
-        kwargs_dict = {'pk': 1, 'query': 'q=photo'}
-        response = self.get_photo_detail(kwargs_dict)
+        kwargs = {'pk': 1, 'query': 'q=photo'}
+        response = self.get_photo_detail(kwargs)
+        self.assertIsNotNone(response.context['query'])
 
     def test_detail_person(self):
         """
         Test that the photo detail view works properly from person page.
         """
         self.create_data()
-        kwargs_dict = {'pk': 1, 'person_pk': 1}
-        response = self.get_photo_detail(kwargs_dict)
+        kwargs = {'pk': 1, 'person_pk': 1}
+        response = self.get_photo_detail(kwargs)
+        self.assertIsNotNone(response.context['person'])
 
     def test_detail_location(self):
         """
         Test that the photo detail view works properly from location/album.
         """
         self.create_data()
-        kwargs_dict = {'pk': 1, 'location_pk': 1, 'album_pk': 1}
-        response = self.get_photo_detail(kwargs_dict)
+        kwargs = {'pk': 1, 'location_pk': 1, 'album_pk': 1}
+        response = self.get_photo_detail(kwargs)
+        self.assertIsNotNone(response.context['location'])
 
+
+class PhotoRotateView(PhotoTest):
     def test_rotate(self):
         """
         Test that the photo rotate view works properly.
@@ -334,6 +335,8 @@ class PhotoViews(SuperuserTest):
         self.json_post_value(
             reverse('photo_rotate', kwargs=dict(pk=1)), 'url', {'submit': 1})
 
+
+class PhotoRenameView(PhotoTest):
     def test_rename(self):
         """
         Test that the photo rename view works properly.
@@ -350,14 +353,42 @@ class PhotoViews(SuperuserTest):
             reverse('photo_rename', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Photo.objects.get(pk=1).name, 'new-name')
 
+
+class PhotoMoveView(PhotoTest):
+    def test_move(self):
+        """
+        Test that the photo move works properly.
+        """
+        self.create_data()
+        Album.objects.create(name='album2')
+        self.assertEqual(Photo.objects.get(pk=1).album.name, 'album1')
+        data = {'album': 2}
+        self.json_get_value(reverse('photo_move', kwargs=dict(pk=1)), 'html')
+        self.json_post_value(reverse('photo_move', kwargs=dict(pk=1)), 'url', data)
+        self.assertEqual(Photo.objects.get(pk=1).album.name, 'album2')
+
+
+class PhotoTagView(PhotoTest):
+    def test_move(self):
+        """
+        Test that the photo move works properly.
+        """
+        self.create_data()
+        Person.objects.create(name='person2')
+        self.assertEqual(Photo.objects.get(pk=1).people.count(), 1)
+        data = {'people': [1, 2]}
+        self.json_get_value(reverse('photo_tag', kwargs=dict(pk=1)), 'html')
+        self.json_post_value(reverse('photo_tag', kwargs=dict(pk=1)), 'url', data)
+        self.assertEqual(Photo.objects.get(pk=1).people.count(), 2)
+
+
+class PhotoDeleteView(PhotoTest):
     def test_delete(self):
         self.create_data()
         self.assertEqual(Photo.objects.count(), 1)
-        self.json_get_value(
-            reverse('photo_delete', kwargs=dict(pk=1)), 'html')
+        self.json_get_value(reverse('photo_delete', kwargs=dict(pk=1)), 'html')
         data = {'submit': True}
-        self.json_post_value(
-            reverse('photo_delete', kwargs=dict(pk=1)), 'url', data)
+        self.json_post_value(reverse('photo_delete', kwargs=dict(pk=1)), 'url', data)
         self.assertEqual(Photo.objects.count(), 0)
 
 
