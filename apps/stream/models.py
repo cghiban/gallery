@@ -52,17 +52,16 @@ class Action(models.Model):
             'actor': self.user.get_full_name() or self.user.username,
             'verb': self.verb,
             'join': self.join,
-            'action_object': self.action_object,
+            'object': self.action_object,
             'target': self.target
         }
         if self.target:
             if self.action_object:
-                return '%(actor)s %(verb)s %(action_object)s %(join)s ' \
-                       '%(target)s' % ctx
-            return '%(actor)s %(verb)s %(target)s' % ctx
+                return '{actor} {verb} {object} {join} {target}'.format(**ctx)
+            return '{actor} {verb} {target}'.format(**ctx)
         if self.action_object:
-            return '%(actor)s %(verb)s %(action_object)s' % ctx
-        return '%(actor)s %(verb)s' % ctx
+            return '{actor} {verb} {action_object}'.format(**ctx)
+        return '{actor} {verb}'.format(**ctx)
 
 
 def delete_actions_on_delete(sender, **kwargs):
