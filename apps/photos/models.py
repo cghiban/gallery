@@ -37,7 +37,8 @@ class Location(models.Model):
         first photo from the first album based on whatever ordering is the
         default.
         """
-        return self.album_set.first().photo_set.first()
+        if self.album_set.count():
+            return self.album_set.first().photo_set.first()
 
 
 class Person(models.Model):
