@@ -5,7 +5,6 @@ from django.core.exceptions import PermissionDenied
 from django.test import TestCase, RequestFactory
 
 from utils.uploads import split_extension, file_allowed, get_unique_upload_path
-from utils.views import json_render, json_redirect
 
 
 class FakeModel:
@@ -58,39 +57,3 @@ class Uploads(TestCase):
         self.assertEqual(len(filename), 55)
         self.assertEqual(filename[:19], 'testing/fake_model/')
         self.assertEqual(filename[-4:], '.jpg')
-
-
-class Views(TestCase):
-    def test_json_render(self):
-        """
-        Test that the json_render view works properly.
-        """
-        self.factory = RequestFactory()
-        # raises an error if not an ajax request
-        request = self.factory.get('/dummy')
-        with self.assertRaises(PermissionDenied):
-            response = json_render(request, 'base.html', {})
-        # works fine if it is an ajax request
-        request = self.factory.get(
-            '/dummy', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        response = json_render(request, 'base.html', {})
-        result = json.loads(response.content.decode("utf-8"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('html' in result)
-
-    def test_json_redirect(self):
-        """
-        Test that the json_redirect view works properly.
-        """
-        self.factory = RequestFactory()
-        # raises an error if not an ajax request
-        request = self.factory.get('/dummy')
-        with self.assertRaises(PermissionDenied):
-            response = json_redirect(request, '/dummy2')
-        # works fine if it is an ajax request
-        request = self.factory.get(
-            '/dummy', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        response = json_redirect(request, '/dummy2')
-        result = json.loads(response.content.decode("utf-8"))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('url' in result)
