@@ -18,7 +18,7 @@ $(function () {
 
     // Enabling the modal window shows the wrapper and enables the cancel button.
     function enableModalWindow() {
-        $("#modal-wrapper").show();
+        $("#modal-window").css('display', 'block');
         $("#modal .cancel").click(function (event) {
             disableModalWindow();
         });
@@ -28,7 +28,7 @@ $(function () {
     // Disabling the modal window clears the html and hides the  wrapper.
     function disableModalWindow() {
         $("#modal").html("");
-        $("#modal-wrapper").hide();
+        $("#modal-window").css('display', 'none');
     }
 
     // There was a processing error, so log it and alert the user.

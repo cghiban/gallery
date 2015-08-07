@@ -120,9 +120,8 @@ STATIC_BASE_DIR = path.join(BASE_DIR, 'gallery', 'static')
 
 CSS_FILES = {
     path.join(STATIC_BASE_DIR, 'application.css'): (
-        path.join(STATIC_BASE_DIR, 'css/reset.css'),
-        path.join(STATIC_BASE_DIR, 'css/fonts.css'),
-        path.join(STATIC_BASE_DIR, 'css/base.css'),
+        path.join(STATIC_BASE_DIR, 'css/reset.scss'),
+        path.join(STATIC_BASE_DIR, 'css/base.scss'),
         path.join(STATIC_BASE_DIR, 'chosen-1.4.2/chosen.css'),
     )
 }

@@ -6,7 +6,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>{% trans 'Photo Gallery' %} - {% block title %}Untitled Page{% endblock %}</title>
+    <title>Gallery - {% block title %}Untitled Page{% endblock %}</title>
     <link href="{% static 'application.css' %}" rel="stylesheet" type="text/css" media="screen">
     {% block extra_head %}{% endblock %}
 </head>
@@ -15,7 +15,7 @@
 <div id="topbar" class="header">
     <div class="left">
         <h1>
-            <a href="{% url 'home' %}" data-navigate="up">{% trans 'Photo Gallery' %}</a>
+            <a href="{% url 'home' %}" data-navigate="up">Gallery</a>
             <span class="sub">{% block header %}Untitled Page{% endblock %}</span>
         </h1>
     </div>
@@ -41,19 +41,15 @@
 </div>
 
 <div id="toolbar" class="header">
-    <div class="left">
+    <div class="back">
         {% if back_link %}
             <a href="{{ back_link.url }}" data-navigate="up">&larr;&nbsp;{{ back_link.title }}</a>
         {% endif %}
     </div>
-    <div class="center">
-        {% block pagination %}
-            {% include '_paginator.html' %}
-        {% endblock %}
-    </div>
-    <div class="right">
-        {% block actions %}{% endblock %}
-    </div>
+    {% block pagination %}
+        {% include '_paginator.html' %}
+    {% endblock %}
+    {% block actions %}{% endblock %}
 </div>
 
 {% if messages %}
@@ -68,7 +64,7 @@
     {% block content %}{% endblock %}
 </div>
 
-<div id="modal-wrapper"><div id="modal"></div></div>
+<div id="modal-window"><div id="modal"></div></div>
 
 <script src="{% static 'application.js' %}"></script>
 {% block extra_js %}{% endblock %}

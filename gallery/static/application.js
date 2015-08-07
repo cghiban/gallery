@@ -825,8 +825,8 @@ return jQuery;};
 
 if(typeof noGlobal===strundefined){window.jQuery=window.$=jQuery;}
 return jQuery;}));$(function(){function keydownNavigate(direction){selector=$("[data-navigate="+direction+"]:last");if(selector.attr("href")){window.location=selector.attr("href");}}
-$(document).keydown(function(event){if(event.which==37)(keydownNavigate("left"));if(event.which==39)(keydownNavigate("right"));if(event.which==40)(keydownNavigate("down"));if(event.which==38&&$(document).scrollTop()==0)(keydownNavigate("up"));});function enableModalWindow(){$("#modal-wrapper").show();$("#modal .cancel").click(function(event){disableModalWindow();});$("#modal select").chosen();}
-function disableModalWindow(){$("#modal").html("");$("#modal-wrapper").hide();}
+$(document).keydown(function(event){if(event.which==37)(keydownNavigate("left"));if(event.which==39)(keydownNavigate("right"));if(event.which==40)(keydownNavigate("down"));if(event.which==38&&$(document).scrollTop()==0)(keydownNavigate("up"));});function enableModalWindow(){$("#modal-window").css('display','block');$("#modal .cancel").click(function(event){disableModalWindow();});$("#modal select").chosen();}
+function disableModalWindow(){$("#modal").html("");$("#modal-window").css('display','none');}
 function errorProcessing(data){console.log(data);alert("Error processing request. Please try again later.");}
 
 
