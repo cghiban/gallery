@@ -2,22 +2,21 @@ from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, \
-    PasswordResetForm as BasePasswordResetForm, \
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm as BasePasswordResetForm, \
     SetPasswordForm as BaseSetPasswordForm, \
-    PasswordChangeForm as BasePasswordChangeForm
+    PasswordChangeForm as BasePasswordChangeForm, AuthenticationForm as BaseAuthenticationForm
 
 from apps.accounts.utils import get_admin_group
 
-
 User = get_user_model()
+
+AuthenticationForm = BaseAuthenticationForm
 
 
 class ProfileForm(forms.ModelForm):
     """
     User form that contains first name, last name, and email.
     """
-
     error_messages = {
         'duplicate_email': _('This email address is already in use. Please \
             supply a different email address.'),
@@ -45,6 +44,11 @@ class RegisterForm(UserCreationForm):
     Form to create a user that includes first_name and last_name.
     Also includes an authorization code that must be entered correctly.
     """
+    error_messages = dict(UserCreationForm.error_messages, **{
+        'duplicate_email': _('This email address is already in use. Please \
+            supply a different email address.'),
+        'invalid_auth_code': _('Authorization code provided was not correct.'),
+    })
 
     auth_code = forms.CharField(
         label=_('Authorization code'),
@@ -52,12 +56,6 @@ class RegisterForm(UserCreationForm):
             your account.'))
     email = forms.EmailField(
         help_text=_('Required. Used if you ever forget your password.'))
-
-    error_messages = dict(UserCreationForm.error_messages, **{
-        'duplicate_email': _('This email address is already in use. Please \
-            supply a different email address.'),
-        'invalid_auth_code': _('Authorization code provided was not correct.'),
-    })
 
     class Meta:
         model = User
@@ -107,10 +105,8 @@ class PasswordResetForm(BasePasswordResetForm):
     """
     Form to send an email to a user who has forgotten his password.
     """
-
     error_messages = {
-        'invalid_email': _('A user with that email address could not be \
-            found.'),
+        'invalid_email': _('A user with that email address could not be found.'),
     }
 
     def clean_email(self):

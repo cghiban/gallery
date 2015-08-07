@@ -237,7 +237,7 @@ class PasswordResetConfirmView(TestCaseWithUser):
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         url = reverse(
             'accounts:password_reset_confirm',
-            kwargs=dict(uidb64=uid, token=token))
+            kwargs=dict(uid36=uid, token=token))
         self.form_in_response(url)
         form_data = {'new_password1': 'password1',
                      'new_password2': 'password2'}
@@ -254,7 +254,7 @@ class PasswordResetConfirmView(TestCaseWithUser):
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         url = reverse(
             'accounts:password_reset_confirm',
-            kwargs=dict(uidb64=uid, token=token))
+            kwargs=dict(uid36=uid, token=token))
         self.form_in_response(url)
         form_data = {'new_password1': 'newpass', 'new_password2': 'newpass'}
         response = self.client.post(url, form_data)
@@ -269,14 +269,14 @@ class PasswordResetConfirmView(TestCaseWithUser):
         # invalid uid, valid token
         uid = 'invalid'
         token = default_token_generator.make_token(self.user)
-        url = reverse(urlname, kwargs=dict(uidb64=uid, token=token))
+        url = reverse(urlname, kwargs=dict(uid36=uid, token=token))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
         # valid uid, invalid token
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         token = 'not-valid-token'
-        url = reverse(urlname, kwargs=dict(uidb64=uid, token=token))
+        url = reverse(urlname, kwargs=dict(uid36=uid, token=token))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
