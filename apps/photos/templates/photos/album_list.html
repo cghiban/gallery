@@ -5,14 +5,6 @@
 {% block title %}{{ page_title }}{% endblock %}
 {% block header %}{{ page_title }}{% endblock %}
 
-{% block actions %}
-    <ul class="actions">
-        {% if perms.photos.add_album %}
-            <li><a href="{% url 'album_create' %}" data-modal="form">{% trans 'Create Album' %}</a></li>
-        {% endif %}
-    </ul>
-{% endblock %}
-
 {% block content %}
     <ul class="albums">
         {% for album in album_list %}
