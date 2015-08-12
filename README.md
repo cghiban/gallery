@@ -34,9 +34,9 @@ to run this project.
 
         vi gallery/settings/local.py
 
-5. Create the database and admin user:
+5. Create the database:
 
-        python manage.py syncdb
+        python manage.py migrate
 
 6. Collect static files:
 
