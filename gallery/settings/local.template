@@ -38,10 +38,10 @@ SERVER_EMAIL = 'admin@localhost'
 
 ### Static and media settings
 
-MEDIA_ROOT = '/change/path/to/media/'
+MEDIA_ROOT = path.join(BASE_DIR, 'public', 'media')
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = '/change/path/to/static/'
+STATIC_ROOT = path.join(BASE_DIR, 'public', 'static')
 STATIC_URL = '/static/'
 
 ### Project specific settings
