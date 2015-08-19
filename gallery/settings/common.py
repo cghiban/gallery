@@ -68,7 +68,7 @@ LOCALE_PATHS = (
 
 ### Session settings
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
 
