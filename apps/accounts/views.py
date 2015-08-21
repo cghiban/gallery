@@ -76,7 +76,7 @@ class Profile(SuccessMessageMixin, UpdateView):
 
 
 class PasswordChange(SuccessMessageMixin, UpdateView):
-    template_name = 'accounts/profile.html'
+    template_name = 'accounts/password_change.html'
     form_class = PasswordChangeForm
     success_message = _('Your password has been successfully changed.')
     success_url = reverse_lazy('accounts:password_change')
