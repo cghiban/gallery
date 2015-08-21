@@ -44,7 +44,6 @@ class AjaxDeleteView(AjaxFormMixin, DeleteView):
     """
     Just like a normal DeleteView, except it will return JSON responses
     if the request was a JSON request.
-    TODO: fix this
     """
 
     def delete(self, request, *args, **kwargs):
