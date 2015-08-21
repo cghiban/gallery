@@ -44,8 +44,8 @@ class CompileAssetsMiddleware:
             raise MiddlewareNotUsed('CompileAssetsMiddleware only runs in DEBUG mode.')
 
     def process_request(self, request):
-        self.compile(settings.get(CSS_FILES, {}), (Scss().compile, cssmin,))
-        self.compile(settings.get(JS_FILES, {}), (jsmin,))
+        self.compile(getattr(settings, 'CSS_FILES', {}), (Scss().compile, cssmin,))
+        self.compile(getattr(settings, 'JS_FILES', {}), (jsmin,))
 
     def compile(self, filedict, processors):
         # The key for filedict is the output file, and the value is a list
