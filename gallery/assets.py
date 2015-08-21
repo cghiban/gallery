@@ -11,6 +11,10 @@ FILE_CACHE = {}
 
 
 def get_file_content(filename):
+    """
+    Get the file contents from the cache for the given filename. If it does
+    not exist in the cache, then get the contents from disk and cache it.
+    """
     # If the filename is in the cache and the file has not changed then
     # grab the content from the cache and return it.
     date_modified = path.getmtime(filename)
@@ -27,13 +31,21 @@ def get_file_content(filename):
 
 
 class CompileAssetsMiddleware:
+    """
+    A middleware class to compile and minify CSS files and to minify JS files.
+    Depends on CSS_FILES and JS_FILES being set in project settings.
+    Processors can be customized by changing them in process_request method.
+    This is designed to run only in development, so that when you push your
+    project to production, the compiled assets can be served like normal.
+    """
+
     def __init__(self):
         if not settings.DEBUG:
             raise MiddlewareNotUsed('CompileAssetsMiddleware only runs in DEBUG mode.')
 
     def process_request(self, request):
-        self.compile(settings.CSS_FILES, (Scss().compile, cssmin,))
-        self.compile(settings.JS_FILES, (jsmin,))
+        self.compile(settings.get(CSS_FILES, {}), (Scss().compile, cssmin,))
+        self.compile(settings.get(JS_FILES, {}), (jsmin,))
 
     def compile(self, filedict, processors):
         # The key for filedict is the output file, and the value is a list
@@ -51,7 +63,6 @@ class CompileAssetsMiddleware:
 
             # Only rebuild the main file if some files in the set have changed.
             if rebuild:
-                print('rebuilding', mainfile)
                 output = output.getvalue()
                 # Run each processor against the whole output.
                 for func in processors:
