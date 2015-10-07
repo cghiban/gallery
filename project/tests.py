@@ -1,7 +1,7 @@
 from django.core.handlers.wsgi import WSGIHandler
 from django.test import TestCase
 
-from gallery.wsgi import application
+from project.wsgi import application
 
 
 class TestGallery(TestCase):

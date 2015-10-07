@@ -1,3 +1,3 @@
 #!/bin/bash
 
-coverage run --source='.' manage.py test --settings=gallery.settings.test
+coverage run --source='.' manage.py test --settings=project.settings.test

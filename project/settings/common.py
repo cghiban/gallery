@@ -16,9 +16,9 @@ MANAGERS = ADMINS
 
 SECRET_KEY = 'PLEASE-OVERRIDE-IN-LOCAL-SETTINGS'
 
-ROOT_URLCONF = 'gallery.urls'
+ROOT_URLCONF = 'project.urls'
 
-WSGI_APPLICATION = 'gallery.wsgi.application'
+WSGI_APPLICATION = 'project.wsgi.application'
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -41,7 +41,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'gallery.assets.CompileAssetsMiddleware',
+    'project.assets.CompileAssetsMiddleware',
 )
 
 ### Database settings
@@ -63,7 +63,7 @@ USE_I18N = False
 USE_L10N = False
 
 LOCALE_PATHS = (
-    path.join(BASE_DIR, 'gallery', 'locale'),
+    path.join(BASE_DIR, 'project', 'locale'),
 )
 
 ### Session settings
@@ -97,13 +97,13 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 TEMPLATE_DIRS = (
-    path.join(BASE_DIR, 'gallery', 'templates'),
+    path.join(BASE_DIR, 'project', 'templates'),
 )
 
 ### Static and media settings
 
 STATICFILES_DIRS = (
-    path.join(BASE_DIR, 'gallery', 'static'),
+    path.join(BASE_DIR, 'project', 'static'),
 )
 
 MEDIA_ROOT = path.join(BASE_DIR, 'public', 'media')
@@ -112,7 +112,7 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = path.join(BASE_DIR, 'public', 'static')
 STATIC_URL = '/static/'
 
-STATIC_BASE_DIR = path.join(BASE_DIR, 'gallery', 'static')
+STATIC_BASE_DIR = path.join(BASE_DIR, 'project', 'static')
 
 CSS_FILES = {
     path.join(STATIC_BASE_DIR, 'application.css'): (

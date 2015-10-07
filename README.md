@@ -50,7 +50,7 @@ documentation for more info:
 6. Launch the application using the built-in development runserver, or deploy
 using gunicorn, which is the application server of choice:
 
-        gunicorn gallery.wsgi:application
+        gunicorn project.wsgi:application
 
 ## Screenshots
 
