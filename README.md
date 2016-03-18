@@ -77,8 +77,8 @@ be added to the group.
 
 Automated testing is certainly not complete at the moment, but I'm working on it.
 
-[![Build Status](https://travis-ci.org/timster/gallery.svg?branch=master)](https://travis-ci.org/timster/gallery)
-[![Coverage Status](https://coveralls.io/repos/timster/gallery/badge.png)](https://coveralls.io/r/timster/gallery)
+[![Build Status](https://img.shields.io/travis/timster/gallery.svg?style=flat-square)](https://travis-ci.org/timster/gallery)
+[![Coverage Status](https://img.shields.io/coveralls/timster/gallery.svg?style=flat-square)](https://coveralls.io/r/timster/gallery)
 
 ## To-Do List
 
